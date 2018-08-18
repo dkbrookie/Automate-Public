@@ -58,6 +58,7 @@ Function CC-cleanAuto{
     ##Starts the CCleaner process
     Write-Output "Starting Cleaning Process"
     Start-Process -FilePath $ccleanerLaunch -ArgumentList "/AUTO"
+    Wait-Process -Name CCleaner
     Write-Output "Cleaning Complete"
 }
 
