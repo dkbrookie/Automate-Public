@@ -14,7 +14,7 @@ Function CC-getDiskStart{
     Try{
         ##Finds C disk space before ccleaner runs
         $diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq "C:"}
-        $diskBefore
+        $diskBefore.FreeSpace
     }
     Catch{
         Write-Warning "Failed to get disk space $_.Exception.Message"
@@ -66,7 +66,7 @@ Function CC-cleanAuto{
 Function CC-getDiskEnd{
     ##Gets the free space of C drive intended to use after the clean function to calculate total disk space saved
     $diskAfter = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq "C:"}
-    $diskAfter
+    $diskAfter.FreeSpace
 }
 
 Function CC-calcSaved{
