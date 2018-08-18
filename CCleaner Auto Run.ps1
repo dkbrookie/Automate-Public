@@ -15,7 +15,7 @@ $ccleanerLaunch = "$ccleanerPath\CCleaner.exe"
 
 Try{
     ##Finds C disk space before ccleaner runs
-    $diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq "$sysDrive"}
+    $diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
 }
 Catch{
     Write-Warning "Failed to get disk space $_.Exception.Message"
@@ -65,7 +65,7 @@ Write-Output "Cleaning Complete"
 
 
 ##Gets the free space of C drive intended to use after the clean function to calculate total disk space saved
-$diskAfter = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq "$sysDrive"}
+$diskAfter = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
 
 
 ##Uses the values from CC-getDiskStart and CC-getDiskEnd to calculate total space saved, then converts it to MBs for easier reading
