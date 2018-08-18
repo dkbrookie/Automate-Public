@@ -69,15 +69,14 @@ Function CC-getDiskEnd{
 
 Function CC-calcSaved{
     ##Uses the values from CC-getDiskStart and CC-getDiskEnd to calculate total space saved, then converts it to MBs for easier reading
+    $before = $diskBefore.FreeSpace
     $before = [math]::Round($diskBefore/1MB,2)
+    $after = $diskAfter.FreeSpace
     $after = [math]::Round($diskAfter/1MB,2)
     $saved = [math]::Round([math]::Round($diskBefore/1MB,2) - [math]::Round($diskAfter/1MB,2),2)
-    $diskBefore.FreeSpace
-    $diskAfter.FreeSpace
     Write-Output "Free Space Before: $before"
     Write-Output "Free Space After: $after"
     Write-Output "Total Space Saved: $saved MBs"
-
 }
 
 CC-getDiskStart
