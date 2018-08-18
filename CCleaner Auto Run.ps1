@@ -14,18 +14,13 @@ Function CC-getDiskStart{
     Try{
         ##Finds C disk space before ccleaner runs
         $diskBefore = Get-WmiObject Win32_LogicalDisk -Filter "DeviceID='C:'"
-        $diskBefore = $diskBefore.FreeSpace
     }
     Catch{
-        Write-Warning "$_.Exception.Message"
+        Write-Warning "Failed to get disk space $_.Exception.Message"
     }
 }
 
 Function CC-fileCheck{
-    ##Verifies that all needed dirs and files are in place
-    $diskBefore = Get-WmiObject Win32_LogicalDisk -Filter "DeviceID='C:'"
-    $diskBefore = $diskBefore.FreeSpace
-
     $packageTest = Test-Path $packagePath
     If(!$packageTest){
         New-Item -ItemType Directory -Path "$packagePath"
@@ -66,16 +61,18 @@ Function CC-cleanAuto{
 
 Function CC-getDiskEnd{
     ##Gets the free space of C drive intended to use after the clean function to calculate total disk space saved
-    $diskAfter = Get-WmiObject Win32_LogicalDisk -Filter "DeviceID='C:'"
-    $diskAfter = $diskAfter.FreeSpace
+    $diskAfter = Get-WmiObject Win32_LogicalDisk -Filter "DeviceID='C:'" | Select @{Name="FreeMB";Expression={[math]::Round($_.Freespace/1MB,2)}}
 }
 
 Function CC-calcSaved{
     ##Uses the values from CC-getDiskStart and CC-getDiskEnd to calculate total space saved, then converts it to MBs for easier reading
-    $saved = $diskBefore - $diskAfter
-    $saved = $saved / 1024 / 1024
-    $saved = ($saved).ToString("#.##")
-    Write-Output "Saved $saved MBs"
+    $before = [math]::Round($diskBefore/1MB,2)
+    $after = [math]::Round($diskAfter/1MB,2)
+    $saved = [math]::Round([math]::Round($diskBefore/1MB,2) - [math]::Round($diskAfter/1MB,2),2)
+    Write-Output "Free Space Before: $before"
+    Write-Output "Free Space After: $after"
+    Write-Output "Total Space Saved: $saved MBs"
+
 }
 
 CC-getDiskStart
