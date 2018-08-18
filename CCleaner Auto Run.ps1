@@ -1,3 +1,7 @@
+<#
+powershell.exe -command "& {(new-object Net.WebClient).DownloadString('https://goo.gl/RUhMFJ') | iex}
+#>
+
 ##Set dir vars
 $ccleaner = "https://automate.manawa.net/labtech/transfer/software/ccleaner/ccleaner.exe"
 $ltPath = "C:\Windows\LTSvc"
@@ -8,13 +12,13 @@ $ccleanerLaunch = "$ccleanerPath\CCleaner.exe"
 
 Function CC-getDiskStart{
     ##Finds C disk space before ccleaner runs
-    $diskBefore = Get-WmiObject Win32_LogicalDisk -Filter "DeviceID='C:'" | Select-Object Size,FreeSpace
+    $diskBefore = Get-WmiObject Win32_LogicalDisk -Filter "DeviceID='C:'"
     $diskBefore = $diskBefore.FreeSpace
 }
 
 Function CC-fileCheck{
     ##Verifies that all needed dirs and files are in place
-    $diskBefore = Get-WmiObject Win32_LogicalDisk -Filter "DeviceID='C:'" | Select-Object Size,FreeSpace
+    $diskBefore = Get-WmiObject Win32_LogicalDisk -Filter "DeviceID='C:'"
     $diskBefore = $diskBefore.FreeSpace
 
     $packageTest = Test-Path $packagePath
