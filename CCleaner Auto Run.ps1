@@ -48,6 +48,7 @@ If(!$downloadStatus){
         Break
     }
 }
+
 Else{
     Write-Output "Verified CCleaner.exe exists at $ccleanerPath"
 }
@@ -59,13 +60,16 @@ Start-Process -FilePath $ccleanerLaunch -ArgumentList "/AUTO"
 Wait-Process -Name CCleaner
 Write-Output "Cleaning Complete"
 
+
+
 ##Gets the free space of C drive intended to use after the clean function to calculate total disk space saved
 $diskAfter = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq "C:"}
 
+
 ##Uses the values from CC-getDiskStart and CC-getDiskEnd to calculate total space saved, then converts it to MBs for easier reading
-$before = $diskBefore.FreeSpace
-$after = $diskAfter.FreeSpace
-$saved = [math]::Round([math]::Round($before/1MB,2) - [math]::Round($after/1MB,2),2)
-Write-Output "Free Space Before: $before"
-Write-Output "Free Space After: $after"
+$before = [math]::Round($diskBefore.FreeSpace/1GB,2)
+$after = [math]::Round($diskAfter.FreeSpace/1GB,2)
+$saved = [math]::Round([math]::Round($diskBefore.FreeSpace/1MB,2) - [math]::Round($diskAfter.FreeSpace/1MB,2),2)
+Write-Output "Free Space Before: $before GBs"
+Write-Output "Free Space After: $after GBs"
 Write-Output "Total Space Saved: $saved MBs"
