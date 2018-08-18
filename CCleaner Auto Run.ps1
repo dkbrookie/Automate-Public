@@ -78,10 +78,9 @@ Function CC-calcSaved{
 
 }
 
-Function CC-driveTest{
-  $test = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq "C:"}
-  $test.FreeSpace
-}
+
+$test = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq "C:"}
+$test.FreeSpace
 
 CC-getDiskStart
 CC-fileCheck
