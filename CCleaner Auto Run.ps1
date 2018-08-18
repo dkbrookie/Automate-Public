@@ -2,6 +2,7 @@
 powershell.exe -command "& {(new-object Net.WebClient).DownloadString('https://goo.gl/RUhMFJ') | iex}
 #>
 
+Write-Output "===CCleaner Auto Clean==="
 ##Set dir vars
 $OS = Get-WMiobject -Class Win32_operatingsystem
 $sysDrive = $OS.SystemDrive
