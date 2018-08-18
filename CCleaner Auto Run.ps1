@@ -70,6 +70,9 @@ $diskAfter = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq "C:"}
 $before = [math]::Round($diskBefore.FreeSpace/1GB,2)
 $after = [math]::Round($diskAfter.FreeSpace/1GB,2)
 $saved = [math]::Round([math]::Round($diskBefore.FreeSpace/1MB,2) - [math]::Round($diskAfter.FreeSpace/1MB,2),2)
+If($saved -le 0)}
+    $saved = 0
+}
 Write-Output "Free Space Before: $before GBs"
 Write-Output "Free Space After: $after GBs"
 Write-Output "Total Space Saved: $saved MBs"
