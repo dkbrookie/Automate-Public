@@ -11,9 +11,14 @@ $ccleanerPath = "$softwarePath\CCleaner"
 $ccleanerLaunch = "$ccleanerPath\CCleaner.exe"
 
 Function CC-getDiskStart{
-    ##Finds C disk space before ccleaner runs
-    $diskBefore = Get-WmiObject Win32_LogicalDisk -Filter "DeviceID='C:'"
-    $diskBefore = $diskBefore.FreeSpace
+    Try{
+        ##Finds C disk space before ccleaner runs
+        $diskBefore = Get-WmiObject Win32_LogicalDisk -Filter "DeviceID='C:'"
+        $diskBefore = $diskBefore.FreeSpace
+    }
+    Catch{
+        Write-Warning "$_.Exception.Message"
+    }
 }
 
 Function CC-fileCheck{
