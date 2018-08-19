@@ -2,6 +2,14 @@
 powershell.exe -command "& {(new-object Net.WebClient).DownloadString('https://goo.gl/RUhMFJ') | iex}
 #>
 
+Function CC-Test{
+    $test = Test
+    $script:test2 = Test2
+}
+
+CC-Test
+$test
+$test2
 
 ##Finds C disk space before ccleaner runs
 $diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
@@ -69,14 +77,6 @@ Function CC-startClean{
     Write-Output "Cleaning Complete"
 }
 
-Function CC-Test{
-    $test = Test
-    $script:test2 = Test2
-}
-
-CC-Test
-$test
-$test2
 CC-fileCheck
 CC-startClean
 
