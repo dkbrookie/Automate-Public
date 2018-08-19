@@ -76,9 +76,7 @@ Function CC-calcSaved{
     If($saved -le 0){
         $global:saved = 0
     }
-    Write-Output "Free Space Before: $global:before GBs"
-    Write-Output "Free Space After: $global:after GBs"
-    Write-Output "Total Space Saved: $global:saved MBs"
+
 }
 
 ##CLear out Windows.old
@@ -125,3 +123,7 @@ $global:diskAfter = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sy
 CC-fileCheck
 CC-startClean
 cc-calcSaved
+
+Write-Output "Free Space Before: $before GBs"
+Write-Output "Free Space After: $after GBs"
+Write-Output "Total Space Saved: $saved MBs"
