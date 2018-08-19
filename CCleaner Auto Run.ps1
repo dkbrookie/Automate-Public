@@ -76,9 +76,9 @@ Function CC-calcSaved{
     If($saved -le 0){
         $script:saved = 0
     }
-    Write-Output "Free Space Before: $before GBs"
-    Write-Output "Free Space After: $after GBs"
-    Write-Output "Total Space Saved: $saved MBs"
+    Write-Output "Free Space Before: $script:before GBs"
+    Write-Output "Free Space After: $script:after GBs"
+    Write-Output "Total Space Saved: $script:saved MBs"
 }
 
 ##CLear out Windows.old
