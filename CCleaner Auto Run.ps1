@@ -2,6 +2,10 @@
 powershell.exe -command "& {(new-object Net.WebClient).DownloadString('https://goo.gl/RUhMFJ') | iex}
 #>
 
+
+##Finds C disk space before ccleaner runs
+$diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
+
 Function Get-Tree($Path,$Include='*'){
     @(Get-Item $Path -Include $Include -Force) +
         (Get-ChildItem $Path -Recurse -Include $Include -Force) | Sort PSPath -Descending -Unique
@@ -11,63 +15,62 @@ Function Remove-Tree($Path,$Include='*'){
     Get-Tree $Path $Include | Remove-Item -Force -Recurse
 }
 
+Function CC-fileCheck{
+    Write-Output "===CCleaner Auto Clean==="
+    ##Set dir vars
+    $OS = Get-WMiobject -Class Win32_operatingsystem
+    $sysDrive = $OS.SystemDrive
+    $ccleaner = "https://automate.manawa.net/labtech/transfer/software/ccleaner/ccleaner.exe"
+    $ltPath = "$sysDrive\Windows\LTSvc"
+    $packagePath = "$ltPath\Packages"
+    $softwarePath = "$packagePath\Software"
+    $ccleanerPath = "$softwarePath\CCleaner"
+    $ccleanerLaunch = "$ccleanerPath\CCleaner.exe"
 
+    $packageTest = Test-Path $packagePath
+    If(!$packageTest){
+        New-Item -ItemType Directory -Path "$packagePath"
+        Write-Output "Packages folder missing, created the folder $packagePath"
+    }
 
-#region
-Write-Output "===CCleaner Auto Clean==="
-##Set dir vars
-$OS = Get-WMiobject -Class Win32_operatingsystem
-$sysDrive = $OS.SystemDrive
-$ccleaner = "https://automate.manawa.net/labtech/transfer/software/ccleaner/ccleaner.exe"
-$ltPath = "$sysDrive\Windows\LTSvc"
-$packagePath = "$ltPath\Packages"
-$softwarePath = "$packagePath\Software"
-$ccleanerPath = "$softwarePath\CCleaner"
-$ccleanerLaunch = "$ccleanerPath\CCleaner.exe"
+    $softwareTest = Test-Path $softwarePath
+    If(!$packageTest){
+        New-Item -ItemType Directory -Path "$softwarePath"
+        Write-Output "Software folder missing, created the folder $softwarePath"
+    }
 
-##Finds C disk space before ccleaner runs
-$diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
+    $ccleanerTest = Test-Path $ccleanerPath
+    If(!$ccleanerTest){
+        New-Item -ItemType Directory -Path "$ccleanerPath"
+        Write-Output "CCleaner folder missing, created the folder $ccleanerePath"
+    }
 
-
-$packageTest = Test-Path $packagePath
-If(!$packageTest){
-    New-Item -ItemType Directory -Path "$packagePath"
-    Write-Output "Packages folder missing, created the folder $packagePath"
-}
-
-$softwareTest = Test-Path $softwarePath
-If(!$packageTest){
-    New-Item -ItemType Directory -Path "$softwarePath"
-    Write-Output "Software folder missing, created the folder $softwarePath"
-}
-
-$ccleanerTest = Test-Path $ccleanerPath
-If(!$ccleanerTest){
-    New-Item -ItemType Directory -Path "$ccleanerPath"
-    Write-Output "CCleaner folder missing, created the folder $ccleanerePath"
-}
-
-$downloadStatus = Test-Path "$ccleanerPath\ccleaner.exe" -PathType Leaf
-If(!$downloadStatus){
-    IWR -Uri $ccleaner -Outfile $ccleanerPath\ccleaner.exe
-    Write-Output "No CCleaner.exe found in $ccleanerpath, downloaded CCleaner.exe"
     $downloadStatus = Test-Path "$ccleanerPath\ccleaner.exe" -PathType Leaf
     If(!$downloadStatus){
-        Write-Output "!ERRDL01: Failed to download CCleaner.exe from $ccleaner, exiting script"
-        Break
+        IWR -Uri $ccleaner -Outfile $ccleanerPath\ccleaner.exe
+        Write-Output "No CCleaner.exe found in $ccleanerpath, downloaded CCleaner.exe"
+        $downloadStatus = Test-Path "$ccleanerPath\ccleaner.exe" -PathType Leaf
+        If(!$downloadStatus){
+            Write-Output "!ERRDL01: Failed to download CCleaner.exe from $ccleaner, exiting script"
+            Break
+        }
+    }
+
+    Else{
+        Write-Output "Verified CCleaner.exe exists at $ccleanerPath"
     }
 }
 
-Else{
-    Write-Output "Verified CCleaner.exe exists at $ccleanerPath"
+Function CC-startClean{
+    ##Starts the CCleaner process
+    Write-Output "Starting Cleaning Process"
+    Start-Process -FilePath $ccleanerLaunch -ArgumentList "/AUTO"
+    Wait-Process -Name CCleaner
+    Write-Output "Cleaning Complete"
 }
-#endregion
 
-##Starts the CCleaner process
-Write-Output "Starting Cleaning Process"
-Start-Process -FilePath $ccleanerLaunch -ArgumentList "/AUTO"
-Wait-Process -Name CCleaner
-Write-Output "Cleaning Complete"
+CC-fileCheck
+CC-startClean
 
 ##CLear out Windows.old
 If(Test-Path "$sysDrive\Windows.old"){
