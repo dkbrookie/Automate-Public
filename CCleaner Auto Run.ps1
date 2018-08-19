@@ -5,6 +5,15 @@ powershell.exe -command "& {(new-object Net.WebClient).DownloadString('https://g
 
 ##Finds C disk space before ccleaner runs
 $diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
+##Set dir vars
+$OS = Get-WMiobject -Class Win32_operatingsystem
+$sysDrive = $OS.SystemDrive
+$ccleaner = "https://automate.manawa.net/labtech/transfer/software/ccleaner/ccleaner.exe"
+$ltPath = "$sysDrive\Windows\LTSvc"
+$packagePath = "$ltPath\Packages"
+$softwarePath = "$packagePath\Software"
+$ccleanerPath = "$softwarePath\CCleaner"
+$ccleanerLaunch = "$ccleanerPath\CCleaner.exe"
 
 Function Get-Tree($Path,$Include='*'){
     @(Get-Item $Path -Include $Include -Force) +
@@ -17,16 +26,6 @@ Function Remove-Tree($Path,$Include='*'){
 
 Function CC-fileCheck{
     Write-Output "===CCleaner Auto Clean==="
-    ##Set dir vars
-    $OS = Get-WMiobject -Class Win32_operatingsystem
-    $sysDrive = $OS.SystemDrive
-    $ccleaner = "https://automate.manawa.net/labtech/transfer/software/ccleaner/ccleaner.exe"
-    $ltPath = "$sysDrive\Windows\LTSvc"
-    $packagePath = "$ltPath\Packages"
-    $softwarePath = "$packagePath\Software"
-    $ccleanerPath = "$softwarePath\CCleaner"
-    $ccleanerLaunch = "$ccleanerPath\CCleaner.exe"
-
     $packageTest = Test-Path $packagePath
     If(!$packageTest){
         New-Item -ItemType Directory -Path "$packagePath"
