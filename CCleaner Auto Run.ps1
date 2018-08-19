@@ -2,15 +2,6 @@
 powershell.exe -command "& {(new-object Net.WebClient).DownloadString('https://goo.gl/RUhMFJ') | iex}
 #>
 
-Function CC-Test{
-    $test = Test
-    $script:test2 = Test2
-}
-
-CC-Test
-$test
-$test2
-
 ##Finds C disk space before ccleaner runs
 $diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
 
@@ -26,14 +17,14 @@ Function Remove-Tree($Path,$Include='*'){
 Function CC-fileCheck{
     Write-Output "===CCleaner Auto Clean==="
     ##Set dir vars
-    $OS = Get-WMiobject -Class Win32_operatingsystem
-    $sysDrive = $OS.SystemDrive
-    $ccleaner = "https://automate.manawa.net/labtech/transfer/software/ccleaner/ccleaner.exe"
-    $ltPath = "$sysDrive\Windows\LTSvc"
-    $packagePath = "$ltPath\Packages"
-    $softwarePath = "$packagePath\Software"
-    $ccleanerPath = "$softwarePath\CCleaner"
-    $ccleanerLaunch = "$ccleanerPath\CCleaner.exe"
+    $script:OS = Get-WMiobject -Class Win32_operatingsystem
+    $script:sysDrive = $OS.SystemDrive
+    $script:ccleaner = "https://automate.manawa.net/labtech/transfer/software/ccleaner/ccleaner.exe"
+    $script:ltPath = "$sysDrive\Windows\LTSvc"
+    $script:packagePath = "$ltPath\Packages"
+    $script:softwarePath = "$packagePath\Software"
+    $script:ccleanerPath = "$softwarePath\CCleaner"
+    $script:ccleanerLaunch = "$ccleanerPath\CCleaner.exe"
 
     $packageTest = Test-Path $packagePath
     If(!$packageTest){
@@ -77,8 +68,18 @@ Function CC-startClean{
     Write-Output "Cleaning Complete"
 }
 
-CC-fileCheck
-CC-startClean
+Function CC-calcSaved{
+    ##Uses the values from CC-getDiskStart and CC-getDiskEnd to calculate total space saved, then converts it to MBs for easier reading
+    $script:before = [math]::Round($diskBefore.FreeSpace/1GB,2)
+    $script:after = [math]::Round($diskAfter.FreeSpace/1GB,2)
+    $script:saved = [math]::Round([math]::Round($diskAfter.FreeSpace/1MB,2) - [math]::Round($diskBefore.FreeSpace/1MB,2),2)
+    If($saved -le 0){
+        $script:saved = 0
+    }
+    Write-Output "Free Space Before: $before GBs"
+    Write-Output "Free Space After: $after GBs"
+    Write-Output "Total Space Saved: $saved MBs"
+}
 
 ##CLear out Windows.old
 If(Test-Path "$sysDrive\Windows.old"){
@@ -117,17 +118,10 @@ If(Test-Path "$sysDrive\Windows\SoftwareDistribution\Downloads"){
     }
 }
 
+
 ##Gets the free space of C drive intended to use after the clean function to calculate total disk space saved
 $diskAfter = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
 
-##Uses the values from CC-getDiskStart and CC-getDiskEnd to calculate total space saved, then converts it to MBs for easier reading
-$before = [math]::Round($diskBefore.FreeSpace/1GB,2)
-$after = [math]::Round($diskAfter.FreeSpace/1GB,2)
-$saved = [math]::Round([math]::Round($diskAfter.FreeSpace/1MB,2) - [math]::Round($diskBefore.FreeSpace/1MB,2),2)
-If($saved -le 0){
-    $saved = 0
-}
-
-Write-Output "Free Space Before: $before GBs"
-Write-Output "Free Space After: $after GBs"
-Write-Output "Total Space Saved: $saved MBs"
+CC-fileCheck
+CC-startClean
+cc-calcSaved
