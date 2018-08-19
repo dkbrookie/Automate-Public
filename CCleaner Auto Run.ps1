@@ -3,7 +3,7 @@ powershell.exe -command "& {(new-object Net.WebClient).DownloadString('https://g
 #>
 
 ##Finds C disk space before ccleaner runs
-$global:diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
+$diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
 
 Function Get-Tree($Path,$Include='*'){
     @(Get-Item $Path -Include $Include -Force) +
@@ -118,7 +118,7 @@ If(Test-Path "$sysDrive\Windows\SoftwareDistribution\Downloads"){
 
 
 ##Gets the free space of C drive intended to use after the clean function to calculate total disk space saved
-$global:diskAfter = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
+$diskAfter = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
 
 CC-fileCheck
 CC-startClean
