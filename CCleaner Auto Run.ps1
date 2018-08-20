@@ -3,8 +3,8 @@ powershell.exe -command "& {(new-object Net.WebClient).DownloadString('https://g
 #>
 
 ##Finds C disk space before cleaning starts
-$script:sysDrive = $OS.SystemDrive
-$script:diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
+$sysDrive = $env:SystemDrive
+$diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
 
 Function Get-Tree($Path,$Include='*'){
     @(Get-Item $Path -Include $Include -Force) +
@@ -18,14 +18,13 @@ Function Remove-Tree($Path,$Include='*'){
 Function CC-fileCheck{
     Write-Output "===CCleaner File Check==="
     ##Set dir vars
-    write-output "sysdrive: $sysDrive"
     $OS = Get-WMiobject -Class Win32_operatingsystem
     $ccleaner = "https://automate.manawa.net/labtech/transfer/software/ccleaner/ccleaner.exe"
     $ltPath = "$sysDrive\Windows\LTSvc"
     $packagePath = "$ltPath\Packages"
     $softwarePath = "$packagePath\Software"
     $ccleanerPath = "$softwarePath\CCleaner"
-    $ccleanerLaunch = "$ccleanerPath\CCleaner.exe"
+    $script:ccleanerLaunch = "$ccleanerPath\CCleaner.exe"
 
     $packageTest = Test-Path $packagePath
     If(!$packageTest){
@@ -111,7 +110,7 @@ CC-startClean
 DC-diskClean
 
 ##Gets the free space of C drive after cleaning
-$script:diskAfter = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
+$diskAfter = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
 
 cc-calcSaved
 
