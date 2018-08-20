@@ -63,7 +63,7 @@ Function CC-fileCheck{
 Function CC-startClean{
     ##Starts the CCleaner process
     Write-Output "===CCleaner Started==="
-    Start-Process -FilePath $ccleanerLaunch -ArgumentList "/AUTO"
+    Start-Process -FilePath $script:ccleanerLaunch -ArgumentList "/AUTO"
     Wait-Process -Name CCleaner
     Write-Output "Cleaning Complete"
 }
