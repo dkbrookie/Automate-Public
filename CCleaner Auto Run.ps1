@@ -3,7 +3,7 @@ powershell.exe -command "& {(new-object Net.WebClient).DownloadString('https://g
 #>
 
 ##Finds C disk space before cleaning starts
-$sysDrive = $OS.SystemDrive
+$global:sysDrive = $OS.SystemDrive
 $diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
 
 Function Get-Tree($Path,$Include='*'){
