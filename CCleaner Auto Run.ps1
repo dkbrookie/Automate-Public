@@ -3,8 +3,8 @@ powershell.exe -command "& {(new-object Net.WebClient).DownloadString('https://g
 #>
 
 ##Finds C disk space before cleaning starts
-$sysDrive = $OS.SystemDrive
-$diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
+$script:sysDrive = $OS.SystemDrive
+$script:diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
 
 Function Get-Tree($Path,$Include='*'){
     @(Get-Item $Path -Include $Include -Force) +
@@ -15,7 +15,7 @@ Function Remove-Tree($Path,$Include='*'){
     Get-Tree $Path $Include | Remove-Item -Force -Recurse
 }
 
-Function CC-fileCheck ([REF]$sysDrive){
+Function CC-fileCheck{
     Write-Output "===CCleaner File Check==="
     ##Set dir vars
     write-output "sysdrive: $sysDrive"
@@ -69,14 +69,14 @@ Function CC-startClean{
     Write-Output "Cleaning Complete"
 }
 
-Function CC-calcSaved([REF]$diskBefore,[REF]$diskAfter){
+Function CC-calcSaved{
     Write-Output "===Calculating Space Saved==="
     ##Uses the values from CC-getDiskStart and CC-getDiskEnd to calculate total space saved, then converts it to MBs for easier reading
-    $before = [math]::Round($diskBefore.FreeSpace/1GB,2)
-    $after = [math]::Round($diskAfter.FreeSpace/1GB,2)
-    $saved = [math]::Round([math]::Round($diskAfter.FreeSpace/1MB,2) - [math]::Round($diskBefore.FreeSpace/1MB,2),2)
+    $script:before = [math]::Round($diskBefore.FreeSpace/1GB,2)
+    $script:after = [math]::Round($diskAfter.FreeSpace/1GB,2)
+    $script:saved = [math]::Round([math]::Round($diskAfter.FreeSpace/1MB,2) - [math]::Round($diskBefore.FreeSpace/1MB,2),2)
     If($saved -le 0){
-        $saved = 0
+        $script:saved = 0
     }
 
 }
@@ -111,7 +111,7 @@ CC-startClean
 DC-diskClean
 
 ##Gets the free space of C drive after cleaning
-$diskAfter = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
+$script:diskAfter = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
 
 cc-calcSaved
 
