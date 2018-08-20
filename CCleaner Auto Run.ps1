@@ -3,8 +3,8 @@ powershell.exe -command "& {(new-object Net.WebClient).DownloadString('https://g
 #>
 
 ##Finds C disk space before cleaning starts
-$global:sysDrive = $OS.SystemDrive
-$diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
+$sysDrive = $OS.SystemDrive
+$diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $global:sysDrive}
 
 Function Get-Tree($Path,$Include='*'){
     @(Get-Item $Path -Include $Include -Force) +
@@ -20,7 +20,7 @@ Function CC-fileCheck{
     ##Set dir vars
     $global:OS = Get-WMiobject -Class Win32_operatingsystem
     $global:ccleaner = "https://automate.manawa.net/labtech/transfer/software/ccleaner/ccleaner.exe"
-    $global:ltPath = "$sysDrive\Windows\LTSvc"
+    $global:ltPath = "$global:sysDrive\Windows\LTSvc"
     $global:packagePath = "$ltPath\Packages"
     $global:softwarePath = "$packagePath\Software"
     $global:ccleanerPath = "$softwarePath\CCleaner"
@@ -63,7 +63,7 @@ Function CC-fileCheck{
 Function CC-startClean{
     ##Starts the CCleaner process
     Write-Output "===CCleaner Started==="
-    Start-Process -FilePath $ccleanerLaunch -ArgumentList "/AUTO"
+    Start-Process -FilePath $global:ccleanerLaunch -ArgumentList "/AUTO"
     Wait-Process -Name CCleaner
     Write-Output "Cleaning Complete"
 }
@@ -71,8 +71,8 @@ Function CC-startClean{
 Function CC-calcSaved{
     Write-Output "===Calculating Space Saved==="
     ##Uses the values from CC-getDiskStart and CC-getDiskEnd to calculate total space saved, then converts it to MBs for easier reading
-    $global:before = [math]::Round($diskBefore.FreeSpace/1GB,2)
-    $global:after = [math]::Round($diskAfter.FreeSpace/1GB,2)
+    $global:before = [math]::Round($global:diskBefore.FreeSpace/1GB,2)
+    $global:after = [math]::Round($global:diskAfter.FreeSpace/1GB,2)
     $global:saved = [math]::Round([math]::Round($global:diskAfter.FreeSpace/1MB,2) - [math]::Round($global:diskBefore.FreeSpace/1MB,2),2)
     If($global:saved -le 0){
         $global:saved = 0
@@ -81,12 +81,12 @@ Function CC-calcSaved{
 }
 
 Function DC-removeDirs{
-    $folders = "$sysDrive\Windows10Upgrade","$sysDrive\Windows\SoftwareDistribution\Downloads","$sysDrive\Windows.old"
+    $folders = "$global:sysDrive\Windows10Upgrade","$global:sysDrive\Windows\SoftwareDistribution\Downloads","$global:sysDrive\Windows.old"
     ForEach($folder in $folders){
         If(Test-Path $folder){
             Write-Output "Attempting to delete $folder"
-            cmd.exe /c "takeown /F $sysDrive\Windows.old\* /R /A" | Out-Null
-            cmd.exe /c "cacls $sysDrive\Windows.old\*.* /T /grant administrators:F" | Out-Null
+            cmd.exe /c "takeown /F $global:sysDrive\Windows.old\* /R /A" | Out-Null
+            cmd.exe /c "cacls $global:sysDrive\Windows.old\*.* /T /grant administrators:F" | Out-Null
             Remove-Tree $folder
             If(Test-Path $folder){
                 Write-Output "Failed to delete $folder"
