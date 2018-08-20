@@ -3,8 +3,8 @@ powershell.exe -command "& {(new-object Net.WebClient).DownloadString('https://g
 #>
 
 ##Finds C disk space before cleaning starts
-$sysDrive = $OS.SystemDrive
-$diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $global:sysDrive}
+$global:sysDrive = $OS.SystemDrive
+$global:diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $global:sysDrive}
 
 Function Get-Tree($Path,$Include='*'){
     @(Get-Item $Path -Include $Include -Force) +
@@ -108,14 +108,12 @@ Function DC-diskClean{
 CC-fileCheck
 CC-startClean
 DC-diskClean
-DC-removeDirs
-
 
 ##Gets the free space of C drive after cleaning
-$diskAfter = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
+$global:diskAfter = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $global:sysDrive}
 
 cc-calcSaved
 
-Write-Output "Free Space Before: $before GBs"
-Write-Output "Free Space After: $after GBs"
-Write-Output "Total Space Saved: $saved MBs"
+Write-Output "Free Space Before: $global:before GBs"
+Write-Output "Free Space After: $global:after GBs"
+Write-Output "Total Space Saved: $global:saved MBs"
