@@ -2,7 +2,7 @@
 powershell.exe -command "& {(new-object Net.WebClient).DownloadString('https://goo.gl/RUhMFJ') | iex}
 #>
 
-##Finds C disk space before ccleaner runs
+##Finds C disk space before cleaning starts
 $diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
 
 Function Get-Tree($Path,$Include='*'){
@@ -15,7 +15,7 @@ Function Remove-Tree($Path,$Include='*'){
 }
 
 Function CC-fileCheck{
-    Write-Output "===CCleaner Auto Clean==="
+    Write-Output "===CCleaner File Check==="
     ##Set dir vars
     $global:OS = Get-WMiobject -Class Win32_operatingsystem
     $global:sysDrive = $OS.SystemDrive
@@ -62,66 +62,58 @@ Function CC-fileCheck{
 
 Function CC-startClean{
     ##Starts the CCleaner process
-    Write-Output "Starting Cleaning Process"
+    Write-Output "===CCleaner Started==="
     Start-Process -FilePath $ccleanerLaunch -ArgumentList "/AUTO"
     Wait-Process -Name CCleaner
     Write-Output "Cleaning Complete"
 }
 
 Function CC-calcSaved{
+    Write-Output "===Calculating Space Saved==="
     ##Uses the values from CC-getDiskStart and CC-getDiskEnd to calculate total space saved, then converts it to MBs for easier reading
     $global:before = [math]::Round($diskBefore.FreeSpace/1GB,2)
     $global:after = [math]::Round($diskAfter.FreeSpace/1GB,2)
-    $global:saved = [math]::Round([math]::Round($diskAfter.FreeSpace/1MB,2) - [math]::Round($diskBefore.FreeSpace/1MB,2),2)
-    If($saved -le 0){
+    $global:saved = [math]::Round([math]::Round($global:diskAfter.FreeSpace/1MB,2) - [math]::Round($global:diskBefore.FreeSpace/1MB,2),2)
+    If($global:saved -le 0){
         $global:saved = 0
     }
 
 }
 
-##CLear out Windows.old
-If(Test-Path "$sysDrive\Windows.old"){
-    cmd.exe /c "icacls $sysDrive\Windows.old /grant Everyone:(OI)(CI)F /q"
-    cmd.exe /c "takeown /f $sysDrive\Windows.old"
-    cmd.exe /c "rd $sysDrive\Windows.old /q /s"
-    If(Test-Path "$sysDrive\Windows.old"){
-        Write-Output "Removed $sysDrive\Windows.old"
-    }
-    ELSE{
-        Write-Output "Failed to remove $sysDrive\Windows.old"
-    }
-}
-
-##Clear out the Windows 10 Upgrade folder
-If(Test-Path "$sysDrive\Windows10Upgrade"){
-    cmd.exe /c "icacls $sysDrive\Windows10Upgrade /grant Everyone:(OI)(CI)F /q"
-    cmd.exe /c "takeown /f $sysDrive\Windows10Upgrade"
-    Remove-Tree $sysDrive\Windows10Upgrade
-    If(Test-Path "$sysDrive\Windows10Upgrade"){
-        Write-Output "Removed $sysDrive\Windows10Upgrade"
-    }
-    ELSE{
-        Write-Output "Failed to remove $sysDrive\Windows10Upgrade"
+Function DC-removeDirs{
+    $folders = "$sysDrive\Windows10Upgrade","$sysDrive\Windows\SoftwareDistribution\Downloads","$sysDrive\Windows.old"
+    ForEach($folder in $folders){
+        If(Test-Path $folder){
+            Write-Output "Attempting to delete $folder"
+            cmd.exe /c "takeown /F $sysDrive\Windows.old\* /R /A" | Out-Null
+            cmd.exe /c "cacls $sysDrive\Windows.old\*.* /T /grant administrators:F" | Out-Null
+            Remove-Tree $folder
+            If(Test-Path $folder){
+                Write-Output "Failed to delete $folder"
+            }
+            Else{
+                Write-Output "Successfully deleted $folder"
+            }
+        }
+        Else{
+            Write-Output "Confirmed $folder doesn't exist"
+        }
     }
 }
 
-##Clear SoftwareDistribution Downloads
-If(Test-Path "$sysDrive\Windows\SoftwareDistribution\Downloads"){
-    Remove-Tree $sysDrive\Windows\SoftwareDistribution\Downloads
-    If(Test-Path "$sysDrive\Windows\SoftwareDistribution\Downloads"){
-        Write-Output "Removed $sysDrive\Windows\SoftwareDistribution\Downloads"
-    }
-    ELSE{
-        Write-Output "Failed to remove $sysDrive\Windows10Upgrade"
-    }
+Function DC-diskClean{
+    Start-Process cleanmgr -ArgumentList "/AUTOCLEAN" -Wait -NoNewWindow -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 }
-
-
-##Gets the free space of C drive intended to use after the clean function to calculate total disk space saved
-$diskAfter = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
 
 CC-fileCheck
 CC-startClean
+DC-diskClean
+DC-removeDirs
+
+
+##Gets the free space of C drive after cleaning
+$diskAfter = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
+
 cc-calcSaved
 
 Write-Output "Free Space Before: $before GBs"
