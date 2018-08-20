@@ -28,25 +28,25 @@ Function CC-fileCheck{
 
     $packageTest = Test-Path $packagePath
     If(!$packageTest){
-        New-Item -ItemType Directory -Path "$packagePath"
+        New-Item -ItemType Directory -Path "$packagePath" | Out-Null
         Write-Output "Packages folder missing, created the folder $packagePath"
     }
 
     $softwareTest = Test-Path $softwarePath
     If(!$packageTest){
-        New-Item -ItemType Directory -Path "$softwarePath"
+        New-Item -ItemType Directory -Path "$softwarePath" | Out-Null
         Write-Output "Software folder missing, created the folder $softwarePath"
     }
 
     $ccleanerTest = Test-Path $ccleanerPath
     If(!$ccleanerTest){
-        New-Item -ItemType Directory -Path "$ccleanerPath"
+        New-Item -ItemType Directory -Path "$ccleanerPath" | Out-Null
         Write-Output "CCleaner folder missing, created the folder $ccleanerePath"
     }
 
     $downloadStatus = Test-Path "$ccleanerPath\ccleaner.exe" -PathType Leaf
     If(!$downloadStatus){
-        IWR -Uri $ccleaner -Outfile $ccleanerPath\ccleaner.exe
+        IWR -Uri $ccleaner -Outfile $ccleanerPath\ccleaner.exe | Out-Null
         Write-Output "No CCleaner.exe found in $ccleanerpath, downloaded CCleaner.exe"
         $downloadStatus = Test-Path "$ccleanerPath\ccleaner.exe" -PathType Leaf
         If(!$downloadStatus){
