@@ -62,10 +62,11 @@ Function CC-fileCheck{
 
 Function CC-startClean{
     ##Starts the CCleaner process
-    Write-Output "===CCleaner Started==="
+    Write-Output "===CCleaner==="
+    Write-Output "Starting CCleaner..."
     Start-Process -FilePath $script:ccleanerLaunch -ArgumentList "/AUTO"
     Wait-Process -Name CCleaner
-    Write-Output "Cleaning Complete"
+    Write-Output "CCleaner Complete!"
 }
 
 Function CC-calcSaved{
@@ -102,7 +103,10 @@ Function DC-removeDirs{
 }
 
 Function DC-diskClean{
+    Write-Output "===Disk Cleanup==="
+    Write-Output "Starting disk cleanup..."
     Start-Process cleanmgr -ArgumentList "/AUTOCLEAN" -Wait -NoNewWindow -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+    Write-Output "Disk cleanup complete!"
 }
 
 CC-fileCheck
