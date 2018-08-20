@@ -3,6 +3,7 @@ powershell.exe -command "& {(new-object Net.WebClient).DownloadString('https://g
 #>
 
 ##Finds C disk space before cleaning starts
+$sysDrive = $OS.SystemDrive
 $diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
 
 Function Get-Tree($Path,$Include='*'){
@@ -18,7 +19,6 @@ Function CC-fileCheck{
     Write-Output "===CCleaner File Check==="
     ##Set dir vars
     $global:OS = Get-WMiobject -Class Win32_operatingsystem
-    $global:sysDrive = $OS.SystemDrive
     $global:ccleaner = "https://automate.manawa.net/labtech/transfer/software/ccleaner/ccleaner.exe"
     $global:ltPath = "$sysDrive\Windows\LTSvc"
     $global:packagePath = "$ltPath\Packages"
