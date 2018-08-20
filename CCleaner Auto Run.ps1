@@ -112,6 +112,7 @@ Function DC-diskClean{
 CC-fileCheck
 CC-startClean
 DC-diskClean
+DC-removeDirs
 
 ##Gets the free space of C drive after cleaning
 $diskAfter = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
