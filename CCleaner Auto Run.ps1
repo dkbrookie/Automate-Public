@@ -104,9 +104,14 @@ Function DC-removeDirs{
 
 Function DC-diskClean{
     Write-Output "===Disk Cleanup==="
-    Write-Output "Starting disk cleanup..."
-    Start-Process cleanmgr -ArgumentList "/AUTOCLEAN" -Wait -NoNewWindow -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
-    Write-Output "Disk cleanup complete!"
+    If(Test-Path "$sysDrive\Windows\System32\)cleamngr.exe" -PathType Leaf){
+        Write-Output "Starting disk cleanup..."
+        Start-Process cleanmgr -ArgumentList "/AUTOCLEAN" -Wait -NoNewWindow -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+        Write-Output "Disk cleanup complete!"
+    }
+    Else{
+        Write-Output "$sysDrive\Windows\System32\)cleamngr.exe is not present on this machine"
+    }
 }
 
 CC-fileCheck
