@@ -82,7 +82,7 @@ Function CC-calcSaved{
 }
 
 Function DC-removeDirs{
-    $folders = "$sysDrive\Windows10Upgrade","$sysDrive\Windows\SoftwareDistribution\Downloads","$sysDrive\Windows.old"
+    $folders = "$sysDrive\Windows10Upgrade","$sysDrive\Windows\SoftwareDistribution\Downloads"<#,"$sysDrive\Windows.old"#>
     ForEach($folder in $folders){
         If(Test-Path $folder){
             Write-Output "Attempting to delete $folder"
@@ -112,7 +112,7 @@ Function DC-diskClean{
     Else{
         Write-Output "$sysDrive\Windows\System32\)cleamngr.exe is not present on this machine"
     }
-}
+}ql
 
 CC-fileCheck
 CC-startClean
