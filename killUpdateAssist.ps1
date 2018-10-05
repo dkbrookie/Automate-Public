@@ -11,11 +11,11 @@ $path1 = "C:\Windows\UpdateAssistant"
 $path2 = "C:\Windows\UpdateAssistantV2"
 
 If(Test-Path $path1){
-    Write-Output "Deleted $path1"
+    Write-Output "!DEL: Deleted $path1"
     Remove-Tree $path1
 }
 Else{
-    Write-Output "$path1 does not exist"
+    Write-Output "!DEL: $path1 does not exist"
 }
 
 If(Test-Path $path2){
@@ -29,7 +29,7 @@ Else{
 $tasks = Get-ScheduledTask | Where {$_.TaskName -like "UpdateAssistant*"} | Select -ExpandProperty TaskName
 If($tasks){
     ForEach($task in $tasks){
-        Write-Output "Task $task has been deleted"
+        Write-Output "!DEL: Task $task has been deleted"
         Unregister-ScheduledTask -TaskName $task -Confirm:$False
     }
 }
