@@ -20,6 +20,7 @@ Function CC-fileCheck{
     ##Set dir vars
     $OS = Get-WMiobject -Class Win32_operatingsystem
     $ccleaner = "https://automate.manawa.net/labtech/transfer/software/ccleaner/ccleaner.exe"
+    $ccleanerConfig = "https://automate.manawa.net/labtech/transfer/software/ccleaner/ccleaner.ini"
     $ltPath = "$sysDrive\Windows\LTSvc"
     $packagePath = "$ltPath\Packages"
     $softwarePath = "$packagePath\Software"
@@ -54,9 +55,22 @@ Function CC-fileCheck{
             Break
         }
     }
-
     Else{
         Write-Output "Verified CCleaner.exe exists at $ccleanerPath"
+    }
+
+    $downloadStatusConfig = Test-Path "$ccleanerPath\ccleaner.ini" -PathType Leaf
+    If(!$downloadStatusConfig){
+        IWR -Uri $ccleanerConfig -Outfile $ccleanerPath\ccleaner.ini | Out-Null
+        Write-Output "No CCleaner.ini found in $ccleanerpath, downloaded CCleaner.ini"
+        $downloadStatus = Test-Path "$ccleanerPath\ccleaner.ini" -PathType Leaf
+        If(!$downloadStatus){
+            Write-Output "!ERRDL01: Failed to download CCleaner.ini from $ccleanerConfig, exiting script"
+            Break
+        }
+    }
+    Else{
+        Write-Output "Verified CCleaner.ini exists at $ccleanerPath"
     }
 }
 
@@ -82,7 +96,7 @@ Function CC-calcSaved{
 }
 
 Function DC-removeDirs{
-    $folders = "$sysDrive\Windows10Upgrade","$sysDrive\Windows\SoftwareDistribution\Downloads","$sysDrive\Windows.old"
+    $folders = "$sysDrive\Windows10Upgrade","$sysDrive\Windows\SoftwareDistribution\Downloads"<#,"$sysDrive\Windows.old"#>
     ForEach($folder in $folders){
         If(Test-Path $folder){
             Write-Output "Attempting to delete $folder"
@@ -104,9 +118,14 @@ Function DC-removeDirs{
 
 Function DC-diskClean{
     Write-Output "===Disk Cleanup==="
-    Write-Output "Starting disk cleanup..."
-    Start-Process cleanmgr -ArgumentList "/AUTOCLEAN" -Wait -NoNewWindow -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
-    Write-Output "Disk cleanup complete!"
+    If(Test-Path "$sysDrive\Windows\System32\)cleamngr.exe" -PathType Leaf){
+        Write-Output "Starting disk cleanup..."
+        Start-Process cleanmgr -ArgumentList "/AUTOCLEAN" -Wait -NoNewWindow -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+        Write-Output "Disk cleanup complete!"
+    }
+    Else{
+        Write-Output "$sysDrive\Windows\System32\)cleamngr.exe is not present on this machine"
+    }
 }
 
 CC-fileCheck
