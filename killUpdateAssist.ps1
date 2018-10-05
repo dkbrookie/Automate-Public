@@ -10,12 +10,15 @@ Function Remove-Tree($Path,$Include='*'){
 $path1 = "C:\Windows\UpdateAssistant"
 $path2 = "C:\Windows\UpdateAssistantV2"
 
-Stop-Process -Name Windows10Upgrade -Force
+
+If(Get-Process -Name Windows10Upgrade){
+  Stop-Process -Name Windows10Upgrade -Force
+}
 
 If(Test-Path $path1){
     Write-Output "!DEL: Deleted $path1"
-    cmd.exe /c "echo y| takeown /F $path1\* /R /A"
-    cmd.exe /c "echo y| cacls $path1\*.* /T /grant administrators:F"
+    cmd.exe /c "echo y| takeown /F $path1\* /R /A" | Out-Null
+    cmd.exe /c "echo y| cacls $path1\*.* /T /grant administrators:F" | Out-Null
     Remove-Tree $path1
 }
 Else{
@@ -24,8 +27,8 @@ Else{
 
 If(Test-Path $path2){
     Write-Output "!DEL: Deleted $path2"
-    cmd.exe /c "echo y| takeown /F $path2\* /R /A"
-    cmd.exe /c "echo y| cacls $path2\*.* /T /grant administrators:F"
+    cmd.exe /c "echo y| takeown /F $path2\* /R /A" | Out-Null
+    cmd.exe /c "echo y| cacls $path2\*.* /T /grant administrators:F" | Out-Null
     Remove-Tree $path2
 }
 Else{
@@ -42,7 +45,3 @@ If($tasks){
 Else{
     Write-Output "No scheduled tasks found for UpdateAssistant"
 }
-
-
-
-cmd.exe /c "cacls C:\Windows\UpdateAssistant\*.* /T /grant administrators:F"
