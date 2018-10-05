@@ -42,39 +42,3 @@ If($tasks){
 Else{
     Write-Output "No scheduled tasks found for UpdateAssistant"
 }
-
-
-
-
-Warning Result:Remove-Item : Cannot remove item
-C:\Windows\UpdateAssistantV2\Windows10Upgrade.exe: Access to the path is
-denied.
-At line:7 char:31
-      Get-Tree $Path $Include | Remove-Item -Force -Recurse
-                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      CategoryInfo          : InvalidArgument: (C:\Windows\Upda...ws10Upgrade.
-   exe:FileInfo) [Remove-Item], ArgumentException
-      FullyQualifiedErrorId : RemoveFileSystemItemArgumentError,Microsoft.Powe
-   rShell.Commands.RemoveItemCommand
-Remove-Item : Cannot remove item
-C:\Windows\UpdateAssistantV2\Windows10Upgrade.exe: Access to the path is
-denied.
-At line:7 char:31
-      Get-Tree $Path $Include | Remove-Item -Force -Recurse
-                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      CategoryInfo          : InvalidArgument: (Windows10Upgrade.exe:FileInfo)
-    [Remove-Item], ArgumentException
-      FullyQualifiedErrorId : RemoveFileSystemItemArgumentError,Microsoft.Powe
-   rShell.Commands.RemoveItemCommand
-Remove-Item : Cannot remove item C:\Windows\UpdateAssistantV2: The directory
-is not empty.
-At line:7 char:31
-      Get-Tree $Path $Include | Remove-Item -Force -Recurse
-                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      CategoryInfo          : WriteError: (C:\Windows\UpdateAssistantV2:Direct
-   oryInfo) [Remove-Item], IOException
-      FullyQualifiedErrorId : RemoveFileSystemItemIOError,Microsoft.PowerShell
-   .Commands.RemoveItemCommand
-C:\Windows\UpdateAssistant does not exist
-!DEL: Deleted C:\Windows\UpdateAssistantV2
-No scheduled tasks found for UpdateAssistant
