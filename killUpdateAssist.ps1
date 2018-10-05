@@ -15,11 +15,11 @@ If(Test-Path $path1){
     Remove-Tree $path1
 }
 Else{
-    Write-Output "!DEL: $path1 does not exist"
+    Write-Output "$path1 does not exist"
 }
 
 If(Test-Path $path2){
-    Write-Output "Deleted $path2"
+    Write-Output "!DEL: Deleted $path2"
     Remove-Tree $path2
 }
 Else{
