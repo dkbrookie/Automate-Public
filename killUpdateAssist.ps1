@@ -11,7 +11,7 @@ $path1 = "C:\Windows\UpdateAssistant"
 $path2 = "C:\Windows\UpdateAssistantV2"
 
 
-If(Get-Process -Name Windows10Upgrade){
+If(Get-Process -Name Windows10Upgrade -EA 0){
   Stop-Process -Name Windows10Upgrade -Force
 }
 
