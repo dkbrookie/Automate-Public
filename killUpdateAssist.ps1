@@ -10,11 +10,6 @@ Function Remove-Tree($Path,$Include='*'){
 $path1 = "C:\Windows\UpdateAssistant"
 $path2 = "C:\Windows\UpdateAssistantV2"
 
-
-If(Get-Process -Name Windows10Upgrade -EA 0){
-  Stop-Process -Name Windows10Upgrade -Force
-}
-
 If(Test-Path $path1){
     Write-Output "!DEL: Deleted $path1"
     cmd.exe /c "echo y| takeown /F $path1\* /R /A" | Out-Null
