@@ -14,8 +14,8 @@ Stop-Process -Name Windows10Upgrade -Force
 
 If(Test-Path $path1){
     Write-Output "!DEL: Deleted $path1"
-    cmd.exe /c "takeown /F $path1\* /R /A" | Out-Null
-    cmd.exe /c "cacls $path1\*.* /T /grant administrators:F" | Out-Null
+    cmd.exe /c "takeown /F $path1\* /R /A"
+    cmd.exe /c "cacls $path1\*.* /T /grant administrators:F"
     Remove-Tree $path1
 }
 Else{
@@ -24,8 +24,8 @@ Else{
 
 If(Test-Path $path2){
     Write-Output "!DEL: Deleted $path2"
-    cmd.exe /c "takeown /F $path2\* /R /A" | Out-Null
-    cmd.exe /c "cacls $path2\*.* /T /grant administrators:F" | Out-Null
+    cmd.exe /c "takeown /F $path2\* /R /A"
+    cmd.exe /c "cacls $path2\*.* /T /grant administrators:F"
     Remove-Tree $path2
 }
 Else{
