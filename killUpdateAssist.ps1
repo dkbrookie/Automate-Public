@@ -7,9 +7,15 @@ Function Remove-Tree($Path,$Include='*'){
     Get-Tree $Path $Include | Remove-Item -Force -Recurse
 }
 
+##Set the udpate path to 'Semi Annual Channel'
+Set-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings -Name BranchReadinessLevel -Value 32
+##Set major OS revision forced updates to defer 365 days
+Set-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings -Name DeferFeatureUpdatesPeriodInDays -Value 365
+
 $path1 = "C:\Windows\UpdateAssistant"
 $path2 = "C:\Windows\UpdateAssistantV2"
 
+##If the UpdateAssistant dir exists, delete it and everything in it
 If(Test-Path $path1){
     Write-Output "!DEL: Deleted $path1"
     cmd.exe /c "echo y| takeown /F $path1\* /R /A" | Out-Null
@@ -20,6 +26,7 @@ Else{
     Write-Output "$path1 does not exist"
 }
 
+##If the UpdateAssistantV2 dir exists, delete it and everything in it
 If(Test-Path $path2){
     Write-Output "!DEL: Deleted $path2"
     cmd.exe /c "echo y| takeown /F $path2\* /R /A" | Out-Null
@@ -30,6 +37,7 @@ Else{
     Write-Output "$path2 does not exist"
 }
 
+##Delete all scheduled tasks UpgradeAssistant created
 $tasks = Get-ScheduledTask | Where {$_.TaskName -like "UpdateAssistant*"} | Select -ExpandProperty TaskName
 If($tasks){
     ForEach($task in $tasks){
