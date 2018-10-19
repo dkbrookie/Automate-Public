@@ -23,6 +23,9 @@ If($checkFile){
             Write-Output "Failed to remove $clientFile"
         }
     }
+    Else{
+        Write-Output "!SUC: Win10 1803 upgrade files verified, ready to attempt install."
+    }
 }
 Else{
     Write-Output "!DLF:"
