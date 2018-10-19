@@ -17,7 +17,7 @@ If($checkFile){
         Remove-Tree -Path 'C:\Windows\LTSvc\Packages\OS\Win10x64.1803'
         $checkFile = Test-Path 'C:\Windows\LTSvc\Packages\OS\Win10x64.1803\Prox64.1803.zip' -PathType Leaf
         If(!$checkFile){
-            Write-Output "Successfully deleted all downloaded files, restarting the download."
+            Write-Output "!DLF: Successfully deleted all downloaded files, restarting the download."
         }
         Else{
             Write-Output "Failed to remove $clientFile"
@@ -25,5 +25,5 @@ If($checkFile){
     }
 }
 Else{
-    Write-Output "$checkFile"
+    Write-Output "!DLF:"
 }
