@@ -50,9 +50,8 @@ Else{
 }
 
 #Disable Automatic App Update scheduled task (can be used to push out prompts for feature updates)
-
-$result = Get-ScheduledTask | where-object {($_.TaskName -eq "Automatic App Update")}
-If(!$result){
+$result = Get-ScheduledTask | Where {$_.TaskName -eq "Automatic App Update"}
+If($result){
         Write-Output "!DEL: Task Automatic App Update has been disabled"
         Disable-ScheduledTask -TaskName $result
     }
