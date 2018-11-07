@@ -63,15 +63,15 @@ ForEach($user in $userPaths.Name) {
   $userLocal = "$env:SystemDrive\Users\$user\AppData\Local\deskdirectorportal"
   If((Test-Path $userLocal)) {
     Remove-Tree $userLocal -EA 0
-    takeown /F $userLocal\* /R /A | Out-Null
-    cacls $userLocal\*.* /T /grant administrators:F | Out-Null
+    echo y| takeown /F $userLocal\* /R /A | Out-Null
+    echo y| cacls $userLocal\*.* /T /grant administrators:F | Out-Null
     Remove-Tree $userLocal
   }
   $userRoaming = "$env:SystemDrive\Users\$user\AppData\Roaming\'$portalName'"
   If((Test-Path $userRoaming)) {
     Remove-Tree $userRoaming -EA 0
-    takeown /F $userRoaming\* /R /A | Out-Null
-    cacls $userRoaming\*.* /T /grant administrators:F | Out-Null
+    echo y| takeown /F $userRoaming\* /R /A | Out-Null
+    echo y| cacls $userRoaming\*.* /T /grant administrators:F | Out-Null
     Remove-Tree $userRoaming
   }
 }
