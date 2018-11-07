@@ -100,8 +100,8 @@ Function DC-removeDirs{
     ForEach($folder in $folders){
         If(Test-Path $folder){
             Write-Output "Attempting to delete $folder"
-            cmd.exe /c "takeown /F $sysDrive\Windows.old\* /R /A" | Out-Null
-            cmd.exe /c "cacls $sysDrive\Windows.old\*.* /T /grant administrators:F" | Out-Null
+            echo y| takeown /F $sysDrive\Windows.old\* /R /A | Out-Null
+            echo y| cacls $sysDrive\Windows.old\*.* /T /grant administrators:F | Out-Null
             Remove-Tree $folder
             If(Test-Path $folder){
                 Write-Output "Failed to delete $folder"
