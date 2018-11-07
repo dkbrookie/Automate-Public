@@ -58,7 +58,7 @@ ForEach($user in $userPaths.Name) {
     Remove-Tree $userStart
   }
   If((Test-Path $userDesktop -PathType Leaf)) {
-    Remote-Item $userDesktop -Force
+    Remove-Item $userDesktop -Force
   }
   $userLocal = "$env:SystemDrive\Users\$user\AppData\Local\deskdirectorportal"
   If((Test-Path $userLocal)) {
