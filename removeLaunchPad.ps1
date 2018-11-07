@@ -29,16 +29,6 @@ $Paths | %{
   If(Test-Path $updateExe) {
     &"$updateExe" $uninstallParams | echo "Waiting"
   }
-  <#If($LocalAppData) {
-    cmd.exe /c "takeown /F $LocalAppData\* /R /A" | Out-Null
-    cmd.exe /c "cacls $LocalAppData\*.* /T /grant administrators:F" | Out-Null
-    Remove-Tree $LocalAppdata -EA 0
-  }
-  If($RoamingAppData) {
-    cmd.exe /c "takeown /F $RoamingAppData\* /R /A" | Out-Null
-    cmd.exe /c "cacls $RoamingAppData\*.* /T /grant administrators:F" | Out-Null
-    Remove-Tree $RoamingAppData -EA 0
-  }#>
 }
 
 $ProgramsToUninstall = 'hklm:/Software/Microsoft/Windows/CurrentVersion/Uninstall','hklm:/Software/WOW6432Node/Microsoft/Windows/CurrentVersion/Uninstall' | gci -EA 0 | Get-ItemProperty -EA 0 | ?{$_.DisplayName -like "$portalName*Machine*"}
@@ -62,18 +52,27 @@ foreach($user in $userList) {
 $userPaths = Get-ChildItem "$env:SystemDrive\Users"
 ForEach($user in $userPaths.Name) {
   Write-Output "Processing $user"
-  Remove-Item "$env:SystemDrive\Users\$user\Desktop\'$portalName'.lnk" -EA 0
+  $userStart = "$env:SystemDrive\Users\$user\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\DKB Innovative"
+  $userDesktop = "$env:SystemDrive\Users\$user\Desktop\'$portalName'.lnk"
+  If((Test-Path $userStart)) {
+    Remove-Tree $userStart
+  }
+  If((Test-Path $userDesktop -PathType Leaf)) {
+    Remote-Item $userDesktop -Force
+  }
   $userLocal = "$env:SystemDrive\Users\$user\AppData\Local\deskdirectorportal"
   If((Test-Path $userLocal)) {
-    cmd.exe /c "takeown /F "$userLocal"\* /R /A" | Out-Null
-    cmd.exe /c "cacls "$userLocal"\*.* /T /grant administrators:F" | Out-Null
     Remove-Tree $userLocal -EA 0
+    takeown /F $userLocal\* /R /A | Out-Null
+    cacls $userLocal\*.* /T /grant administrators:F | Out-Null
+    Remove-Tree $userLocal
   }
   $userRoaming = "$env:SystemDrive\Users\$user\AppData\Roaming\'$portalName'"
   If((Test-Path $userRoaming)) {
-    cmd.exe /c "takeown /F "$userRoaming"\* /R /A" | Out-Null
-    cmd.exe /c "cacls "$userRoaming"\*.* /T /grant administrators:F" | Out-Null
     Remove-Tree $userRoaming -EA 0
+    takeown /F $userRoaming\* /R /A | Out-Null
+    cacls $userRoaming\*.* /T /grant administrators:F | Out-Null
+    Remove-Tree $userRoaming
   }
 }
 
