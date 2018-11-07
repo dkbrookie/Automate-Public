@@ -13,20 +13,19 @@ $checkFile = Test-Path 'C:\Windows\LTSvc\Packages\OS\Win10x64.1803\Prox64.1803.z
 If($checkFile){
     $clientFile = Get-Item 'C:\Windows\LTSvc\Packages\OS\Win10x64.1803\Prox64.1803.zip'
     If($ltServFile -gt $clientFile.Length){
-        Write-Output "ER01!: The downloaded file size of $clientFile does not match the server side file size. Deleting the ZIP download, and will reattempt."
         Remove-Tree -Path 'C:\Windows\LTSvc\Packages\OS\Win10x64.1803'
         $checkFile = Test-Path 'C:\Windows\LTSvc\Packages\OS\Win10x64.1803\Prox64.1803.zip' -PathType Leaf
         If(!$checkFile){
-            Write-Output "!DLF: Successfully deleted all downloaded files, restarting the download."
+            Write-Output "!DLF"
         }
         Else{
-            Write-Output "Failed to remove $clientFile"
+            Write-Output "!FAIL"
         }
     }
     Else{
-        Write-Output "!SUC: Win10 1803 upgrade files verified, ready to attempt install."
+        Write-Output "!SUC"
     }
 }
 Else{
-    Write-Output "!DLF:"
+    Write-Output "!DLF"
 }
