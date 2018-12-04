@@ -37,7 +37,7 @@ ForEach($folder in $folders){
     If(Test-Path $folder){
         echo y| takeown /F $sysDrive\Windows.old\* /R /A /D Y | Out-Null
         echo y| cacls $sysDrive\Windows.old\*.* /T /grant administrators:F | Out-Null
-        cmd.exe /c "RD /S /Q $folder/"
+        cmd.exe /c "RD /S /Q $folder/" | Out-Null
     }
 }
 
