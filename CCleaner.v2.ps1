@@ -2,15 +2,6 @@
 $sysDrive = $env:SystemDrive
 $diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
 
-Function Get-Tree($Path,$Include='*'){
-  @(Get-Item $Path -Include $Include -Force) +
-    (Get-ChildItem $Path -Recurse -Include $Include -Force) | Sort PSPath -Descending -Unique
-}
-
-Function Remove-Tree($Path,$Include='*'){
-  Get-Tree $Path $Include | Remove-Item -Force -Recurse
-}
-
 ##region fileChecks
 $OS = Get-WMiobject -Class Win32_operatingsystem
 $ccleanerUrl = "https://automate.manawa.net/labtech/transfer/software/ccleaner/ccleaner.exe"
@@ -44,9 +35,9 @@ Wait-Process -Name CCleaner
 $folders = "$sysDrive\Windows10Upgrade","$sysDrive\Windows\SoftwareDistribution\Downloads","$sysDrive\Windows.old"
 ForEach($folder in $folders){
     If(Test-Path $folder){
-        echo y| takeown /F $sysDrive\Windows.old\* /R /A | Out-Null
+        echo y| takeown /F $sysDrive\Windows.old\* /R /A /D Y | Out-Null
         echo y| cacls $sysDrive\Windows.old\*.* /T /grant administrators:F | Out-Null
-        Remove-Tree $folder
+        cmd.exe /c "RD /S /Q $folder/"
     }
 }
 
