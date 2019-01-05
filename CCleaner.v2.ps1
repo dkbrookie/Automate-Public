@@ -16,11 +16,13 @@ If(!(Test-Path $ccleanerDir)) {
 
 Try {
   If(!(Test-Path $ccleanerExe -PathType Leaf)) {
-    IWR -Uri $ccleanerUrl -Outfile $ccleanerExe | Out-Null
+    (New-Object System.Net.WebClient).DownloadFile($ccleanerUrl, $ccleanerExe)
+    #IWR -Uri $ccleanerUrl -Outfile $ccleanerExe | Out-Null
   }
 
   If(!(Test-Path $ccleanerIni -PathType Leaf)) {
-    IWR -Uri $ccleanerConfigUrl -Outfile $ccleanerIni | Out-Null
+    (New-Object System.Net.WebClient).DownloadFile($ccleanerConfigUrl, $ccleanerIni)
+    #IWR -Uri $ccleanerConfigUrl -Outfile $ccleanerIni | Out-Null
   }
 } Catch {
   Write-Error "!ERRDL01: Failed to download required files, exiting script"
