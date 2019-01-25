@@ -51,6 +51,9 @@ If((Test-Path "$sysDrive\Windows\System32\)cleamngr.exe" -PathType Leaf)) {
 ## Remove superseded patch service pack / update files
 &cmd.exe /c "dism.exe /Online /Cleanup-Image /SPSuperseded" | Out-Null
 
+## Rempty recycle bin
+rd /s c:\$Recycle.Bin
+
 ## Gets the free space of C drive after cleaning
 $diskAfter = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
 
