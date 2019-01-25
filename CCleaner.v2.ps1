@@ -52,7 +52,7 @@ If((Test-Path "$sysDrive\Windows\System32\)cleamngr.exe" -PathType Leaf)) {
 &cmd.exe /c "dism.exe /Online /Cleanup-Image /SPSuperseded" | Out-Null
 
 ## Rempty recycle bin
-rd /s c:\$Recycle.Bin
+Clear-RecycleBin -Force -Confirm:$False
 
 ## Gets the free space of C drive after cleaning
 $diskAfter = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
