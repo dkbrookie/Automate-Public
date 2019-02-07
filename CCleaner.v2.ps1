@@ -4,8 +4,8 @@ $diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive
 
 ##region fileChecks
 $OS = Get-WMiobject -Class Win32_operatingsystem
-$ccleanerUrl = "https://automate.manawa.net/labtech/transfer/software/ccleaner/ccleaner.exe"
-$ccleanerConfigUrl = "https://automate.manawa.net/labtech/transfer/software/ccleaner/ccleaner.ini"
+$ccleanerUrl = "https://drive.google.com/uc?export=download&id=1dK8lqCeu7_iJPKfoXifLjcRPaXDT7N2e"
+$ccleanerConfigUrl = "https://drive.google.com/uc?export=download&id=19jwJW41PqApC3tpwSs23ZDbXWN1RUuEt"
 $ccleanerDir = "$sysDrive\Windows\LTSvc\packages\Software\CCleaner"
 $ccleanerExe = "$ccleanerDir\CCleaner.exe"
 $ccleanerIni = "$ccleanerDir\ccleaner.ini"
