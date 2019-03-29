@@ -59,8 +59,15 @@ public static extern uint SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, uin
 $winApi = Add-Type -MemberDefinition $definition -Name WinAPI -Namespace Extern -PassThru
 $winApi::SHEmptyRecycleBin(0, $null, 7) | Out-Null
 
+## Empty out all of the temp folders
+$tempFolders = "$env:TEMP\*","$env:SystemDrive\Temp\*","$env:windir\Temp\*"
+ForEach ($tempFolder in $tempFolders) {
+    Remove-Item -Path $tempFolder -Recurse -Force -EA 0
+}
+
+
 ## Gets the free space of C drive after cleaning
-$diskAfter = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
+$diskAfter = Get-WmiObject Win32_LogicalDisk | Where-Object {$_.DeviceID -eq $sysDrive}
 
 ## Uses the values from CC-getDiskStart and CC-getDiskEnd to calculate total space saved, then converts it to MBs for easier reading
 $before = [math]::Round($diskBefore.FreeSpace/1GB,2)
