@@ -1,3 +1,5 @@
+[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+
 ## Finds C disk space before cleaning starts
 $sysDrive = $env:SystemDrive
 $diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
