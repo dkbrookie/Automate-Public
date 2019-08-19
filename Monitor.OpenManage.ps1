@@ -1,17 +1,11 @@
-$nl = [Environment]::NewLine
 [dateTime]$time = (get-date).addDays(-1)
 $log = Get-EventLog -LogName System -After $time -Source 'Server Administrator' -EntryType Error,Warning -EA 0
-IF (!$log){
-    Write-Host 'Pass'
+If (!$log){
+    Write-Output '!SUCCESS: No failures found'
 }
-ELSE{
-    Write-Host '======================================================' $nl
-    Write-Host '======================================================' $nl
-    Write-Host 'Machine Name:' $env:computername $nl
-    Write-Host 'Description: Labtech detected Dell OpenManage system log failure events. See all Dell OpenManage error/warnings for the past 14 days below...' $nl
-    Write-Host '======================================================' $nl
+Else {
+    Write-Output "!FAILED: Machine Name: $env:computername"
+    Write-Output 'Description: Automate detected Dell OpenManage system log failure events. See all Dell OpenManage error/warnings for the past 14 days below...'
     [dateTime]$time = (get-date).addDays(-14)
     Get-EventLog -LogName System -After $time -Source 'Server Administrator' -EntryType Error,Warning -EA 0 | Format-List TimeGenerated, Message
-    Write-Host '======================================================' $nl
-    Write-Host '======================================================'
 }
