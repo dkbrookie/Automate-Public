@@ -46,12 +46,12 @@ ForEach($folder in $folders){
 }
 
 ## Verifies disk cleanup is present, runs it if true
-If((Test-Path "$sysDrive\Windows\System32\)cleamngr.exe" -PathType Leaf)) {
+If((Test-Path "$env:windir\System32\cleanmgr.exe" -PathType Leaf)) {
   Start-Process cleanmgr -ArgumentList "/AUTOCLEAN" -Wait -NoNewWindow -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 }
 
 ## Remove superseded patch service pack / update files
-&cmd.exe /c "dism.exe /Online /Cleanup-Image /SPSuperseded" | Out-Null
+&cmd.exe /c "dism.exe /Online /Cleanup-Image /SPSuperseded"
 
 ## Rempty recycle bin
 $definition = @'
