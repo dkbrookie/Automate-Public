@@ -50,10 +50,25 @@ If((Test-Path "$env:windir\System32\cleanmgr.exe" -PathType Leaf)) {
   Start-Process cleanmgr -ArgumentList "/AUTOCLEAN" -Wait -NoNewWindow -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 }
 
-## Remove superseded patch service pack / update files
+<#
+WinSxs Cleanup
+
+The /Cleanup-Image parameter of Dism.exe provides advanced users more options to further 
+reduce the size of the WinSxS folder. To reduce the amount of space used by a Service 
+Pack, use the /SPSuperseded parameter of Dism.exe on a running version of Windows to 
+remove any backup components needed for uninstallation of the service pack.
+#>
 &cmd.exe /c "dism.exe /Online /Cleanup-Image /SPSuperseded"
 
-## Rempty recycle bin
+<#
+Using the /ResetBase switch with the /StartComponentCleanup parameter of DISM.exe on a 
+running version of Windows removes all superseded versions of every component in the 
+## component store
+#>
+&cmd.exe /c "dism.exe /Online /Cleanup-Image /StartComponentCleanup /ResetBase"
+
+
+## Empty recycle bin
 $definition = @'
 [DllImport("Shell32.dll", CharSet = CharSet.Unicode)]
 public static extern uint SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, uint dwFlags);
