@@ -80,4 +80,4 @@ If($saved -le 0){
 }
 
 ## Formats the output so we can split vars in Automate
-Write-Output "before=$before|after=$after|saved=$saved"
+Write-Output "before=$before|after=$after|spaceSaved=$saved"
