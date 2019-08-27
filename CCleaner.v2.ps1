@@ -47,8 +47,22 @@ ForEach($folder in $folders){
 
 ## Verifies disk cleanup is present, runs it if true
 If((Test-Path "$env:windir\System32\cleanmgr.exe" -PathType Leaf)) {
-  Start-Process cleanmgr -ArgumentList "/AUTOCLEAN" -Wait -NoNewWindow -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+  $diskCleanRegPath = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\'
+  ## Every item in this long list below is an item on DiskCleanup that will be checked and cleaned through this script
+  $cleanItems = 'Active Setup Temp Folders','BranchCache','Content Indexer Cleaner','D3D Shader Cache','Delivery Optimization Files','Device Driver Packages','Diagnostic Data Viewer database files','Downloaded Program Files','DownloadsFolder','Internet Cache Files','Language Pack','Offline Pages Files','Old ChkDsk Files','Previous Installations','Recycle Bin','RetailDemo Offline Content','Service Pack Cleanup','Setup Log Files','System error memory dump files','System error minidump files','System error minidump files','Temporary Setup Files','Thumbnail Cache','Update Cleanup','User file versions','Windows Defender','Windows Error Reporting Files','Windows ESD installation files','Windows Upgrade Log Files'
+
+  ForEach ($item in $cleanItems) {
+      $curProperty = Get-ItemProperty -Path "$diskCleanRegPath\$item" -Name StateFlags0777 -EA 0
+      If (!$curProperty -or $curProperty.StateFlags0777 -ne 2) {
+          Write-Output "Setting $item to enabled in Disk Cleanup"
+          New-ItemProperty -Path "$diskCleanRegPath\$item" -Name StateFlags0777 -Value 2 -PropertyType DWORD -EA 0 | Out-Null
+      } Else {
+          Write-Output "Confirmed $item is enabled in Disk Cleanup"
+      }
+  }
+  Start-Process cleanmgr -ArgumentList "/SAGERUN:777" -Wait -NoNewWindow
 }
+
 
 <#
 WinSxs Cleanup
