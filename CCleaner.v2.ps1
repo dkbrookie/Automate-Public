@@ -74,7 +74,7 @@ $definition = @'
 public static extern uint SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, uint dwFlags);
 '@
 $winApi = Add-Type -MemberDefinition $definition -Name WinAPI -Namespace Extern -PassThru
-$winApi::SHEmptyRecycleBin(0, $null, 7) | Out-Null
+$winApi::SHEmptyRecycleBin(0, $null, 7)
 
 ## Empty out all of the temp folders
 $tempFolders = "$env:TEMP\*","$env:SystemDrive\Temp\*","$env:windir\Temp\*"
