@@ -43,7 +43,7 @@ ForEach($folder in $folders){
   If((Test-Path $folder)){
     cmd.exe /c echo y| takeown /F $folder\* /R /A /D Y | Out-Null
     cmd.exe /c echo y| cacls $folder\*.* /T /grant administrators:F | Out-Null
-    Remove-Item $folder -Recurse -Force -Confirm:$False | Out-Null
+    cmd.exe /c RD /S /Q $folder | Out-Null
     Write-Output "Deleted $folder"
   }
 }
