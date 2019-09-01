@@ -41,9 +41,9 @@ Write-Output 'CCleaner complete!'
 $folders = "$sysDrive\Windows10Upgrade","$sysDrive\Windows\SoftwareDistribution\Download","$sysDrive\Windows.old"
 ForEach($folder in $folders){
   If((Test-Path $folder)){
-    cmd.exe /c echo y| takeown /F $folder\* /R /A /D Y | Out-Null
-    cmd.exe /c echo y| cacls $folder\*.* /T /grant administrators:F | Out-Null
-    cmd.exe /c RD /S /Q $folder | Out-Null
+    &cmd.exe /c echo y| takeown /F $folder\* /R /A /D Y | Out-Null
+    &cmd.exe /c echo y| cacls $folder\*.* /T /grant administrators:F | Out-Null
+    &cmd.exe /c RD /S /Q $folder | Out-Null
     Write-Output "Deleted $folder"
   }
 }
