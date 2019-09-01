@@ -17,14 +17,16 @@ If(!(Test-Path $ccleanerDir)) {
 }
 
 Try {
-  If(!(Test-Path $ccleanerExe -PathType Leaf)) {
+  If ((Test-Path $ccleanerIni -PathType Leaf)) {
+    If ((Get-Item $ccleanerExe -EA 0).Length -ne '13594584') {
+      (New-Object System.Net.WebClient).DownloadFile($ccleanerUrl, $ccleanerExe)
+    }
+  } Else {
     (New-Object System.Net.WebClient).DownloadFile($ccleanerUrl, $ccleanerExe)
-    #IWR -Uri $ccleanerUrl -Outfile $ccleanerExe | Out-Null
   }
 
   If(!(Test-Path $ccleanerIni -PathType Leaf)) {
     (New-Object System.Net.WebClient).DownloadFile($ccleanerConfigUrl, $ccleanerIni)
-    #IWR -Uri $ccleanerConfigUrl -Outfile $ccleanerIni | Out-Null
   }
 } Catch {
   Write-Error "!ERRDL01: Failed to download required files, exiting script"
@@ -32,17 +34,18 @@ Try {
 #endregion fileChecks
 
 ## Starts the CCleaner process
-Start-Process -FilePath $ccleanerExe -ArgumentList "/AUTO"
-Wait-Process -Name CCleaner
+Start-Process -FilePath $ccleanerExe -ArgumentList "/AUTO" -Wait
+Write-Output 'CCleaner complete!'
 
 ## Deletes unneeded files
-$folders = "$sysDrive\Windows10Upgrade","$sysDrive\Windows\SoftwareDistribution\Downloads","$sysDrive\Windows.old"
+$folders = "$sysDrive\Windows10Upgrade","$sysDrive\Windows\SoftwareDistribution\Download","$sysDrive\Windows.old"
 ForEach($folder in $folders){
-    If(Test-Path $folder){
-        echo y| takeown /F $sysDrive\Windows.old\* /R /A /D Y | Out-Null
-        echo y| cacls $sysDrive\Windows.old\*.* /T /grant administrators:F | Out-Null
-        cmd.exe /c "RD /S /Q $folder/" | Out-Null
-    }
+  If((Test-Path $folder)){
+    cmd.exe /c echo y| takeown /F $folder\* /R /A /D Y | Out-Null
+    cmd.exe /c echo y| cacls $folder\*.* /T /grant administrators:F | Out-Null
+    Remove-Item $folder -Recurse -Force -Confirm:$False | Out-Null
+    Write-Output "Deleted $folder"
+  }
 }
 
 ## Verifies disk cleanup is present, runs it if true
@@ -52,13 +55,13 @@ If((Test-Path "$env:windir\System32\cleanmgr.exe" -PathType Leaf)) {
   $cleanItems = 'Active Setup Temp Folders','BranchCache','Content Indexer Cleaner','D3D Shader Cache','Delivery Optimization Files','Device Driver Packages','Diagnostic Data Viewer database files','Downloaded Program Files','DownloadsFolder','Internet Cache Files','Language Pack','Offline Pages Files','Old ChkDsk Files','Previous Installations','Recycle Bin','RetailDemo Offline Content','Service Pack Cleanup','Setup Log Files','System error memory dump files','System error minidump files','System error minidump files','Temporary Setup Files','Thumbnail Cache','Update Cleanup','User file versions','Windows Defender','Windows Error Reporting Files','Windows ESD installation files','Windows Upgrade Log Files'
 
   ForEach ($item in $cleanItems) {
-      $curProperty = Get-ItemProperty -Path "$diskCleanRegPath\$item" -Name StateFlags0777 -EA 0
-      If (!$curProperty -or $curProperty.StateFlags0777 -ne 2) {
-          Write-Output "Setting $item to enabled in Disk Cleanup"
-          New-ItemProperty -Path "$diskCleanRegPath\$item" -Name StateFlags0777 -Value 2 -PropertyType DWORD -EA 0 | Out-Null
-      } Else {
-          Write-Output "Confirmed $item is enabled in Disk Cleanup"
-      }
+    $curProperty = Get-ItemProperty -Path "$diskCleanRegPath\$item" -Name StateFlags0777 -EA 0
+    If (!$curProperty -or $curProperty.StateFlags0777 -ne 2) {
+      Write-Output "Setting $item to enabled in Disk Cleanup"
+      New-ItemProperty -Path "$diskCleanRegPath\$item" -Name StateFlags0777 -Value 2 -PropertyType DWORD -EA 0 | Out-Null
+    } Else {
+      Write-Output "Confirmed $item is enabled in Disk Cleanup"
+    }
   }
   Start-Process cleanmgr -ArgumentList "/SAGERUN:777" -Wait -NoNewWindow
 }
@@ -93,7 +96,7 @@ $winApi::SHEmptyRecycleBin(0, $null, 7)
 ## Empty out all of the temp folders
 $tempFolders = "$env:TEMP\*","$env:SystemDrive\Temp\*","$env:windir\Temp\*"
 ForEach ($tempFolder in $tempFolders) {
-    Remove-Item -Path $tempFolder -Recurse -Force -EA 0
+  Remove-Item -Path $tempFolder -Recurse -Force -EA 0
 }
 
 
@@ -105,7 +108,7 @@ $before = [math]::Round($diskBefore.Sum/1MB,2)
 $after = [math]::Round($diskAfter.Sum/1MB,2)
 $saved = [math]::Round([math]::Round($diskAfter.Sum/1MB,2) - [math]::Round($diskBefore.Sum/1MB,2),2)
 If($saved -le 0){
-    $saved = 0
+  $saved = 0
 }
 
 ## Formats the output so we can split vars in Automate
