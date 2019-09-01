@@ -2,7 +2,7 @@
 
 ## Finds C disk space before cleaning starts
 $sysDrive = $env:SystemDrive
-$diskBefore = Get-WmiObject Win32_LogicalDisk | Where {$_.DeviceID -eq $sysDrive}
+$diskBefore = (Get-WmiObject Win32_LogicalDisk).FreeSpace | Measure-Object -Sum
 
 ##region fileChecks
 $OS = Get-WMiobject -Class Win32_operatingsystem
@@ -98,12 +98,12 @@ ForEach ($tempFolder in $tempFolders) {
 
 
 ## Gets the free space of C drive after cleaning
-$diskAfter = Get-WmiObject Win32_LogicalDisk | Where-Object {$_.DeviceID -eq $sysDrive}
+$diskAfter = (Get-WmiObject Win32_LogicalDisk).FreeSpace | Measure-Object -Sum
 
 ## Uses the values from CC-getDiskStart and CC-getDiskEnd to calculate total space saved, then converts it to MBs for easier reading
-$before = [math]::Round($diskBefore.FreeSpace/1GB,2)
-$after = [math]::Round($diskAfter.FreeSpace/1GB,2)
-$saved = [math]::Round([math]::Round($diskAfter.FreeSpace/1MB,2) - [math]::Round($diskBefore.FreeSpace/1MB,2),2)
+$before = [math]::Round($diskBefore.Sum/1MB,2)
+$after = [math]::Round($diskAfter.Sum/1MB,2)
+$saved = [math]::Round([math]::Round($diskAfter.Sum/1MB,2) - [math]::Round($diskBefore.Sum/1MB,2),2)
 If($saved -le 0){
     $saved = 0
 }
