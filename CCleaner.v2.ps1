@@ -1,4 +1,5 @@
 [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls -bor [Net.SecurityProtocolType]::Tls11 -bor [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Ssl3
 
 ## Finds C disk space before cleaning starts
 $sysDrive = $env:SystemDrive
@@ -17,7 +18,7 @@ If(!(Test-Path $ccleanerDir)) {
 }
 
 Try {
-  If ((Test-Path $ccleanerIni -PathType Leaf)) {
+  If ((Test-Path $ccleanerExe -PathType Leaf)) {
     If ((Get-Item $ccleanerExe -EA 0).Length -ne '13594584') {
       (New-Object System.Net.WebClient).DownloadFile($ccleanerUrl, $ccleanerExe)
     }
