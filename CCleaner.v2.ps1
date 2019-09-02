@@ -64,7 +64,9 @@ If((Test-Path "$env:windir\System32\cleanmgr.exe" -PathType Leaf)) {
       Write-Output "Confirmed $item is enabled in Disk Cleanup"
     }
   }
-  Start-Process cleanmgr -ArgumentList "/SAGERUN:777" -Wait -NoNewWindow
+  &cmd.exe /c echo y| cleanmgr /sagerun:0777
+  Wait-Process cleanmgr
+  #Start-Process cleanmgr -ArgumentList "/SAGERUN:0777" -Wait -NoNewWindow
 }
 
 
