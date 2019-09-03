@@ -1,4 +1,8 @@
+## Sometimes there's weird certificate settings so this is just a quick set to make sure our
+## download will go through
 [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+## Sometimes downloading via Powershell fails due to TLS settings on the local machine so this
+## is just making sure TLS settings will allow our download
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls -bor [Net.SecurityProtocolType]::Tls11 -bor [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Ssl3
 
 ## Gets total disk space available before cleaning starts
@@ -21,6 +25,9 @@ If(!(Test-Path $ccleanerDir)) {
 Try {
   If ((Test-Path $ccleanerExe -PathType Leaf)) {
     Write-Output 'Ccleaner.exe exists, checking file size...'
+    ## For some reason when downloading from google drive once and awhile it just won't finish the download
+    ## so a byte check really is necessary to make sure CCleaner downloads succesfully. Long play is to move
+    ## this to an FTP server, just haven't had a chance.
     If ((Get-Item $ccleanerExe -EA 0).Length -ne '13594584') {
       Write-Warning 'Ccleaner does exist, but the file size does not match the server. Re-downloading...'
       (New-Object System.Net.WebClient).DownloadFile($ccleanerUrl, $ccleanerExe)
@@ -149,3 +156,4 @@ If($saved -le 0){
 
 ## Formats the output so we can split vars in Automate
 Write-Output "before=$before|after=$after|spaceSaved=$saved"
+Write-Output '***NOTE: before/after/saved is output in MBs'
