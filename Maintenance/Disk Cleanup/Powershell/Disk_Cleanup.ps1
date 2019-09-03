@@ -1,7 +1,7 @@
 [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls -bor [Net.SecurityProtocolType]::Tls11 -bor [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Ssl3
 
-## Finds C disk space before cleaning starts
+## Gets total disk space available before cleaning starts
 $sysDrive = $env:SystemDrive
 $diskBefore = (Get-WmiObject Win32_LogicalDisk).FreeSpace | Measure-Object -Sum
 
@@ -134,7 +134,7 @@ public static extern uint SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, uin
 }
 
 
-## Gets the free space of C drive after cleaning
+## Gets the available space of all drives after cleaning
 $diskAfter = (Get-WmiObject Win32_LogicalDisk).FreeSpace | Measure-Object -Sum
 
 ## Uses the values from the total disk space used before and after this script to calculate
