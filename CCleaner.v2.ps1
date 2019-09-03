@@ -56,7 +56,7 @@ ForEach($folder in $folders){
   If((Test-Path $folder)){
     &cmd.exe /c echo y| takeown /F $folder\* /R /A /D Y 2>&1 | Out-Null
     &cmd.exe /c echo y| cacls $folder\*.* /T /grant administrators:F 2>&1 | Out-Null
-    &cmd.exe /c RD /S /Q $folder | Out-Null
+    &cmd.exe /c RD /S /Q $folder 2>&1 | Out-Null
     Write-Output "Deleted $folder"
   }
 }
@@ -98,16 +98,24 @@ reduce the size of the WinSxS folder. To reduce the amount of space used by a Se
 Pack, use the /SPSuperseded parameter of Dism.exe on a running version of Windows to 
 remove any backup components needed for uninstallation of the service pack.
 #>
-&cmd.exe /c "dism.exe /Online /Cleanup-Image /SPSuperseded" | Out-Null
-Write-Output 'DISM service pack cleanup complete'
+$dismSP = &cmd.exe /c "dism.exe /Online /Cleanup-Image /SPSuperseded"
+If ($dismSP -like '*Service Pack Cleanup cannot proceed: No Service Pack backup files were found.*') {
+    Write-Warning 'No service packs to remove with DISM'
+} Else {
+    Write-Output 'DISM service pack cleanup complete'
+}
 
 <#
 Using the /ResetBase switch with the /StartComponentCleanup parameter of DISM.exe on a 
 running version of Windows removes all superseded versions of every component in the 
 ## component store
 #>
-&cmd.exe /c "dism.exe /Online /Cleanup-Image /StartComponentCleanup /ResetBase" | Out-Null
-Write-Output 'DISM WinSxs cleanup complete'
+$dismWinSxs = &cmd.exe /c "dism.exe /Online /Cleanup-Image /StartComponentCleanup /ResetBase"
+If ($dismWinSxs -like '*The operation could not be completed due to pending operations.*') {
+    Write-Warning 'Unable to complete DISM WinSxs cleanup due to operations pending, ususally this means pending reboot'
+} Else {
+    Write-Output 'DISM WinSxs cleanup complete'
+}
 
 
 ## Empty recycle bin
@@ -127,10 +135,12 @@ public static extern uint SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, uin
 ## Gets the free space of C drive after cleaning
 $diskAfter = (Get-WmiObject Win32_LogicalDisk).FreeSpace | Measure-Object -Sum
 
-## Uses the values from CC-getDiskStart and CC-getDiskEnd to calculate total space saved, then converts it to MBs for easier reading
+## Uses the values from the total disk space used before and after this script to calculate
+## total space saved, then converts it to MBs for easier reading
 $before = [math]::Round($diskBefore.Sum/1MB,2)
 $after = [math]::Round($diskAfter.Sum/1MB,2)
 $saved = [math]::Round(($before - $after)/1MB,2)
+## If there is less space than before the script started just report back 0
 If($saved -le 0){
   $saved = 0
 }
