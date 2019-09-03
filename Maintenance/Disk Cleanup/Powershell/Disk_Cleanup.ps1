@@ -9,7 +9,7 @@
 $sysDrive = $env:SystemDrive
 $diskBefore = (Get-WmiObject Win32_LogicalDisk).FreeSpace | Measure-Object -Sum
 
-##region fileChecks
+## Set paths as vars
 $OS = Get-WMiobject -Class Win32_operatingsystem
 $ccleanerUrl = "https://drive.google.com/uc?export=download&id=1dK8lqCeu7_iJPKfoXifLjcRPaXDT7N2e"
 $ccleanerConfigUrl = "https://drive.google.com/uc?export=download&id=19jwJW41PqApC3tpwSs23ZDbXWN1RUuEt"
@@ -45,7 +45,7 @@ Try {
 } Catch {
   Write-Error "!ERROR: Failed to download required files, exiting script"
 }
-#endregion fileChecks
+
 
 ## Starts the CCleaner process
 Try {
