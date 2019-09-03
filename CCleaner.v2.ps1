@@ -12,6 +12,7 @@ $ccleanerConfigUrl = "https://drive.google.com/uc?export=download&id=19jwJW41PqA
 $ccleanerDir = "$sysDrive\Windows\LTSvc\packages\Software\CCleaner"
 $ccleanerExe = "$ccleanerDir\CCleaner.exe"
 $ccleanerIni = "$ccleanerDir\ccleaner.ini"
+$logFile = "$sysDrive\Windows\LTSvc\diskCleanup.txt"
 
 If(!(Test-Path $ccleanerDir)) {
   New-Item -Path $ccleanerDir -ItemType Directory | Out-Null
@@ -19,10 +20,15 @@ If(!(Test-Path $ccleanerDir)) {
 
 Try {
   If ((Test-Path $ccleanerExe -PathType Leaf)) {
+    Write-Output 'Ccleaner.exe exists, checking file size...'
     If ((Get-Item $ccleanerExe -EA 0).Length -ne '13594584') {
+      Write-Warning 'Ccleaner does exist, but the file size does not match the server. Re-downloading...'
       (New-Object System.Net.WebClient).DownloadFile($ccleanerUrl, $ccleanerExe)
+    } Else {
+      Write-Output 'Verified Ccleaner.exe file size is correct, executing Ccleaner...'
     }
   } Else {
+    Write-Warning 'Ccleaner.exe does not exist, downloading file...'
     (New-Object System.Net.WebClient).DownloadFile($ccleanerUrl, $ccleanerExe)
   }
 
@@ -30,22 +36,35 @@ Try {
     (New-Object System.Net.WebClient).DownloadFile($ccleanerConfigUrl, $ccleanerIni)
   }
 } Catch {
-  Write-Error "!ERRDL01: Failed to download required files, exiting script"
+  Write-Error "!ERROR: Failed to download required files, exiting script"
 }
 #endregion fileChecks
 
 ## Starts the CCleaner process
-Start-Process -FilePath $ccleanerExe -ArgumentList "/AUTO" -Wait
-Write-Output 'CCleaner complete!'
+Try {
+  Start-Process -FilePath $ccleanerExe -ArgumentList "/AUTO" -Wait
+  Write-Output 'CCleaner complete!'
+} Catch {
+  Write-Warning '!ERROR: There was a problem running Ccleaner.exe, unable to complete this task'
+}
 
-## Deletes unneeded files
+## Deletes old windows update files and old versions of Windows
 $folders = "$sysDrive\Windows10Upgrade","$sysDrive\Windows\SoftwareDistribution\Download","$sysDrive\Windows.old"
 ForEach($folder in $folders){
   If((Test-Path $folder)){
-    &cmd.exe /c echo y| takeown /F $folder\* /R /A /D Y | Out-Null
-    &cmd.exe /c echo y| cacls $folder\*.* /T /grant administrators:F | Out-Null
+    &cmd.exe /c echo y| takeown /F $folder\* /R /A /D Y 2>&1 | Out-Null
+    &cmd.exe /c echo y| cacls $folder\*.* /T /grant administrators:F 2>&1 | Out-Null
     &cmd.exe /c RD /S /Q $folder | Out-Null
     Write-Output "Deleted $folder"
+  }
+}
+
+## Deletes temp files
+$folders = "$env:TEMP","$env:SystemDrive\Temp","$env:windir\Temp"
+ForEach($folder in $folders){
+  If((Test-Path $folder)){
+    &cmd.exe /c RD /S /Q $folder 2>&1 | Out-Null
+    Write-Output "Deleted temp files from $folder"
   }
 }
 
@@ -60,8 +79,6 @@ If((Test-Path "$env:windir\System32\cleanmgr.exe" -PathType Leaf)) {
     If (!$curProperty -or $curProperty.StateFlags0777 -ne 2) {
       Write-Output "Setting $item to enabled in Disk Cleanup"
       New-ItemProperty -Path "$diskCleanRegPath\$item" -Name StateFlags0777 -Value 2 -PropertyType DWORD -EA 0 | Out-Null
-    } Else {
-      Write-Output "Confirmed $item is enabled in Disk Cleanup"
     }
   }
   &cmd.exe /c echo y| cleanmgr /sagerun:0777
@@ -78,28 +95,29 @@ reduce the size of the WinSxS folder. To reduce the amount of space used by a Se
 Pack, use the /SPSuperseded parameter of Dism.exe on a running version of Windows to 
 remove any backup components needed for uninstallation of the service pack.
 #>
-&cmd.exe /c "dism.exe /Online /Cleanup-Image /SPSuperseded"
+&cmd.exe /c "dism.exe /Online /Cleanup-Image /SPSuperseded" | Out-Null
+Write-Output 'DISM service pack cleanup complete'
 
 <#
 Using the /ResetBase switch with the /StartComponentCleanup parameter of DISM.exe on a 
 running version of Windows removes all superseded versions of every component in the 
 ## component store
 #>
-&cmd.exe /c "dism.exe /Online /Cleanup-Image /StartComponentCleanup /ResetBase"
+&cmd.exe /c "dism.exe /Online /Cleanup-Image /StartComponentCleanup /ResetBase" | Out-Null
+Write-Output 'DISM WinSxs cleanup complete'
 
 
 ## Empty recycle bin
-$definition = @'
+Try {
+  $definition = @'
 [DllImport("Shell32.dll", CharSet = CharSet.Unicode)]
 public static extern uint SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, uint dwFlags);
 '@
-$winApi = Add-Type -MemberDefinition $definition -Name WinAPI -Namespace Extern -PassThru
-$winApi::SHEmptyRecycleBin(0, $null, 7)
-
-## Empty out all of the temp folders
-$tempFolders = "$env:TEMP\*","$env:SystemDrive\Temp\*","$env:windir\Temp\*"
-ForEach ($tempFolder in $tempFolders) {
-  Remove-Item -Path $tempFolder -Recurse -Force -EA 0
+  $winApi = Add-Type -MemberDefinition $definition -Name WinAPI -Namespace Extern -PassThru
+  $winApi::SHEmptyRecycleBin(0, $null, 7)
+  Write-Output 'Recycling bin successfully emptied'
+} Catch {
+  Write-Warning '!ERROR: There was a problem when attempting to empty the recycling bin, unable to complete this task.'
 }
 
 
@@ -109,7 +127,7 @@ $diskAfter = (Get-WmiObject Win32_LogicalDisk).FreeSpace | Measure-Object -Sum
 ## Uses the values from CC-getDiskStart and CC-getDiskEnd to calculate total space saved, then converts it to MBs for easier reading
 $before = [math]::Round($diskBefore.Sum/1MB,2)
 $after = [math]::Round($diskAfter.Sum/1MB,2)
-$saved = [math]::Round([math]::Round($diskAfter.Sum/1MB,2) - [math]::Round($diskBefore.Sum/1MB,2),2)
+$saved = [math]::Round(($before - $after)/1MB,2)
 If($saved -le 0){
   $saved = 0
 }
