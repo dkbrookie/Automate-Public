@@ -106,6 +106,8 @@ If ($dismSP -like '*Service Pack Cleanup cannot proceed: No Service Pack backup 
 }
 
 <#
+Service Pack Cleanup
+
 Using the /ResetBase switch with the /StartComponentCleanup parameter of DISM.exe on a 
 running version of Windows removes all superseded versions of every component in the 
 ## component store
