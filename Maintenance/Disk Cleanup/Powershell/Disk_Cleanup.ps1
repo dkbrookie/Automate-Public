@@ -139,7 +139,7 @@ If ((Test-Path "$env:windir\System32\cleanmgr.exe" -PathType Leaf)) {
         $TimeSpan = New-TimeSpan (Get-Date) $EndTime
     }
     ## Close out the progress bar cleanly if it was still running. 
-    Write-Progress -Activity "Waiting for $proc to complete." -Completed
+    Write-Progress -Activity "Waiting for $proc to complete." -Completed -Status 'Complete'
     ## If cleanmgr is still running after the end count time timer, kill cleanmgr. Otherwise note the time it took cleanmgr to complete.
     If ($diskCleanupRunning) {
         Write-Host "$proc is still running after the $CountDownTimer time expired, and will hang up the rest of this disk cleanup script."
