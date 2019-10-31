@@ -29,10 +29,10 @@ Try {
         ## so a byte check really is necessary to make sure CCleaner downloads succesfully. Long play is to move
         ## this to an FTP server, just haven't had a chance.
         If ((Get-Item $ccleanerExe -EA 0).Length -ne '13594584') {
-        Write-Warning 'Ccleaner does exist, but the file size does not match the server. Re-downloading...'
-        (New-Object System.Net.WebClient).DownloadFile($ccleanerUrl, $ccleanerExe)
+            Write-Warning 'Ccleaner does exist, but the file size does not match the server. Re-downloading...'
+            (New-Object System.Net.WebClient).DownloadFile($ccleanerUrl, $ccleanerExe)
         } Else {
-        Write-Output 'Verified Ccleaner.exe file size is correct, executing Ccleaner...'
+            Write-Output 'Verified Ccleaner.exe file size is correct, executing Ccleaner...'
         }
     } Else {
         Write-Warning 'Ccleaner.exe does not exist, downloading file...'
@@ -83,11 +83,11 @@ ForEach ($folder in $folders) {
         $tempCount++
         $item = $_.FullName
         Try {
-        Remove-Item $item -Recurse -Force -ErrorAction Stop
-        #Write-Output "Deleted $item"
+            Remove-Item $item -Recurse -Force -ErrorAction Stop
+            #Write-Output "Deleted $item"
         } Catch {
-        $tempCount--
-        #Write-Warning "Failed to delete $item"
+            $tempCount--
+            #Write-Warning "Failed to delete $item"
         }
     }
 }
@@ -109,8 +109,8 @@ If ((Test-Path "$env:windir\System32\cleanmgr.exe" -PathType Leaf)) {
     ForEach ($item in $cleanItems) {
         $curProperty = Get-ItemProperty -Path "$diskCleanRegPath\$item" -Name StateFlags0778 -EA 0
         If (!$curProperty -or $curProperty.StateFlags0778 -ne 2) {
-        Write-Output "Setting $item to enabled in Disk Cleanup"
-        New-ItemProperty -Path "$diskCleanRegPath\$item" -Name StateFlags0778 -Value 2 -PropertyType DWORD -EA 0 | Out-Null
+            Write-Output "Setting $item to enabled in Disk Cleanup"
+            New-ItemProperty -Path "$diskCleanRegPath\$item" -Name StateFlags0778 -Value 2 -PropertyType DWORD -EA 0 | Out-Null
         }
     }
     &cmd.exe /c echo y| cleanmgr /sagerun:0778
@@ -207,7 +207,7 @@ $after = [math]::Round($diskAfter.Sum/1MB,2)
 $saved = [math]::Round(($after - $before),2)
 $savedGBs = [math]::Round(($saved * 1024 * 1024 / 1GB),2)
 ## If there is less space than before the script started just report back 0
-If($saved -le 0){
+If($saved -le 0) {
     $saved = 0
 }
 
