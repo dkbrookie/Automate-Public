@@ -104,16 +104,16 @@ If ($tempCount -eq 0) {
 If ((Test-Path "$env:windir\System32\cleanmgr.exe" -PathType Leaf)) {
     $diskCleanRegPath = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\'
     ## Every item in this long list below is an item on DiskCleanup that will be checked and cleaned through this script
-    $cleanItems = 'Active Setup Temp Folders','BranchCache','Content Indexer Cleaner','D3D Shader Cache','Delivery Optimization Files','Device Driver Packages','Diagnostic Data Viewer database files','Downloaded Program Files','DownloadsFolder','Internet Cache Files','Language Pack','Offline Pages Files','Old ChkDsk Files','Previous Installations','Recycle Bin','RetailDemo Offline Content','Service Pack Cleanup','Setup Log Files','System error memory dump files','System error minidump files','System error minidump files','Temporary Setup Files','Thumbnail Cache','Update Cleanup','User file versions','Windows Defender','Windows Error Reporting Files','Windows ESD installation files','Windows Upgrade Log Files'
+    $cleanItems = 'Active Setup Temp Folders','BranchCache','Content Indexer Cleaner','D3D Shader Cache','Delivery Optimization Files','Device Driver Packages','Diagnostic Data Viewer database files','Downloaded Program Files','Internet Cache Files','Language Pack','Offline Pages Files','Old ChkDsk Files','Previous Installations','Recycle Bin','RetailDemo Offline Content','Service Pack Cleanup','Setup Log Files','System error memory dump files','System error minidump files','System error minidump files','Temporary Setup Files','Thumbnail Cache','Update Cleanup','User file versions','Windows Defender','Windows Error Reporting Files','Windows ESD installation files','Windows Upgrade Log Files'
 
     ForEach ($item in $cleanItems) {
-        $curProperty = Get-ItemProperty -Path "$diskCleanRegPath\$item" -Name StateFlags0777 -EA 0
-        If (!$curProperty -or $curProperty.StateFlags0777 -ne 2) {
+        $curProperty = Get-ItemProperty -Path "$diskCleanRegPath\$item" -Name StateFlags0778 -EA 0
+        If (!$curProperty -or $curProperty.StateFlags0778 -ne 2) {
         Write-Output "Setting $item to enabled in Disk Cleanup"
-        New-ItemProperty -Path "$diskCleanRegPath\$item" -Name StateFlags0777 -Value 2 -PropertyType DWORD -EA 0 | Out-Null
+        New-ItemProperty -Path "$diskCleanRegPath\$item" -Name StateFlags0778 -Value 2 -PropertyType DWORD -EA 0 | Out-Null
         }
     }
-    &cmd.exe /c echo y| cleanmgr /sagerun:0777
+    &cmd.exe /c echo y| cleanmgr /sagerun:0778
     ## Check to see if cleanmgr is still running since this often gets hung up and stops the script. This is
     ## pretty extensive just to check if cleanmgr is running, but the alternative is letting this get hung up
     ## and the script in Automate just gets stuck untilt he couple hour timeout hits. 
