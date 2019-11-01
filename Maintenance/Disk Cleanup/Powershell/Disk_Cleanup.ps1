@@ -70,12 +70,42 @@ ForEach($folder in $folders){
 
 ## Deletes temp files
 ## Using CMD RD instead of Remove-Item for same reasons as above
+<<<<<<< Updated upstream
 $folders = "$env:TEMP","$env:SystemDrive\Temp","$env:windir\Temp"
 ForEach($folder in $folders){
   If((Test-Path $folder)){
     &cmd.exe /c RD /S /Q $folder 2>&1 | Out-Null
     Write-Output "Deleted temp files from $folder"
   }
+=======
+$tempCount = 0
+## $excludeCTemp is defined in Automate at script run. This is determined by an EDF. If it's NULL
+## just proceed as usual, but if it's $true then do not clean temp from sysdrive\temp
+If (!$excludeCTemp) {
+    $folders = "$env:TEMP","$env:SystemDrive\Temp","$env:windir\Temp"
+} Else {
+     $folders = "$env:TEMP","$env:windir\Temp"
+}
+ForEach ($folder in $folders) {
+    Get-ChildItem $folder -Recurse -EA 0 | ForEach-Object {
+        $tempCount++
+        $item = $_.FullName
+        Try {
+            Remove-Item $item -Recurse -Force -ErrorAction Stop
+            #Write-Output "Deleted $item"
+        } Catch {
+            $tempCount--
+            #Write-Warning "Failed to delete $item"
+        }
+    }
+}
+
+If ($tempCount -eq 0) {
+    $folders = $folders.Split(' ')
+    Write-Output "No temp items were found that can be removed at this time from $folders"
+} Else {
+    Write-Output "Successfully removed $tempCount temp items, general temp file removal complete!"
+>>>>>>> Stashed changes
 }
 
 ## Verifies disk cleanup is present, runs it if true
