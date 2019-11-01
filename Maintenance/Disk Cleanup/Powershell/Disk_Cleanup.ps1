@@ -76,9 +76,11 @@ $tempCount = 0
 ## $excludeCTemp is defined in Automate at script run. This is determined by an EDF. If it's NULL
 ## just proceed as usual, but if it's $true then do not clean temp from sysdrive\temp
 If (!$excludeCTemp) {
+    Write-Output '$excludeCTemp was $False'
     $folders = "$env:TEMP","$env:SystemDrive\Temp","$env:windir\Temp"
 } Else {
-     $folders = "$env:TEMP","$env:windir\Temp"
+    Write-Output '$excludeCTemp was $True'
+    $folders = "$env:TEMP","$env:windir\Temp"
 }
 ForEach ($folder in $folders) {
     Get-ChildItem $folder -Recurse -EA 0 | ForEach-Object {
