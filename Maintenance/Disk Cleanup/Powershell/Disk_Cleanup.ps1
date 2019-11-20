@@ -73,14 +73,10 @@ Write-Output "Windows temp system file cleanup complete!"
 ## Deletes temp files
 ## Using CMD RD instead of Remove-Item for same reasons as above
 $tempCount = 0
-## $excludeCTemp is defined in Automate at script run. This is determined by an EDF. If it's NULL
-## just proceed as usual, but if it's $true then do not clean temp from sysdrive\temp
 If (!$excludeCTemp) {
-    Write-Output '$excludeCTemp was $False'
     $folders = "$env:TEMP","$env:SystemDrive\Temp","$env:windir\Temp"
 } Else {
-    Write-Output '$excludeCTemp was $True'
-    $folders = "$env:TEMP","$env:windir\Temp"
+     $folders = "$env:TEMP","$env:windir\Temp"
 }
 ForEach ($folder in $folders) {
     Get-ChildItem $folder -Recurse -EA 0 | ForEach-Object {
@@ -216,4 +212,4 @@ If($saved -le 0) {
 }
 
 ## Formats the output so we can split vars in Automate
-Write-Output "before=$before|after=$after|spaceSaved=$saved|spaceSavedGBs=$($savedGBs)GBs"
+Write-Output "trashVar='None'|before=$before|after=$after|spaceSaved=$saved|spaceSavedGBs=$($savedGBs)GBs"
