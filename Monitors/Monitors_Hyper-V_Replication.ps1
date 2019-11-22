@@ -4,7 +4,7 @@ Try {
     $health = (Get-VMReplication).Health
     $machine = $env:COMPUTERNAME
     If ($health -eq 'Normal') {
-        Write-Output "!SUCCESS: Replication status is Normal on $machine"
+        Write-Output "!ERROR: Replication status is Normal on $machine"
     } ElseIf ($health -eq 'Warning') {
         Write-Output "!ERROR: Replication is in a warning state on $machine! Please address the issue immediately!"
     } ElseIf ($health -eq 'Critical') {
