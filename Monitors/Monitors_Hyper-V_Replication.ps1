@@ -6,9 +6,9 @@ Try {
     If ($health -eq 'Normal') {
         Write-Output "!SUCCESS: Replication status is Normal on $machine"
     } ElseIf ($health -eq 'Warning') {
-        Write-Output "!WARNING: Replication is in a warning state on $machine! Please address the issue immediately!"
+        Write-Output "!ERROR: Replication is in a warning state on $machine! Please address the issue immediately!"
     } ElseIf ($health -eq 'Critical') {
-        Write-Output "!CRITICAL: Repliation status is critical on $machine! Please address the issue immidiately!"
+        Write-Output "!ERROR: Repliation status is critical on $machine! Please address the issue immidiately!"
     } ElseIf ($health -eq 'NotApplicable') {
         Write-Output "!SUCCESS: Replication check not applicable to $machine"
     } Else {
