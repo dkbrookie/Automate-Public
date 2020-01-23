@@ -83,8 +83,11 @@ ForEach ($folder in $folders) {
         $tempCount++
         $item = $_.FullName
         Try {
-            Remove-Item $item -Recurse -Force -ErrorAction Stop
-            #Write-Output "Deleted $item"
+            ## We've had issues with IIS if you mess with the inetpub temp so we are excluding that in this IF statement
+            If ($item -notlike '*inetpub*') {
+                Remove-Item $item -Recurse -Force -ErrorAction Stop
+                #Write-Output "Deleted $item"
+            }
         } Catch {
             $tempCount--
             #Write-Warning "Failed to delete $item"
