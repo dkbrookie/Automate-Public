@@ -92,7 +92,7 @@ ForEach ($folder in $folders) {
             $tempCount--
             #Write-Warning "Failed to delete $item"
         }
-    }
+    } | Out-Null
 }
 
 If ($tempCount -eq 0) {
