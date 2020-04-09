@@ -215,4 +215,4 @@ If($saved -le 0) {
 }
 
 ## Formats the output so we can split vars in Automate
-Write-Output "trashVar='None'|before=$before|after=$after|spaceSaved=$saved|spaceSavedGBs=$($savedGBs)GBs"
+Write-Output "trashVar='None'|before=$before|after=$after|spaceSaved=$saved|spaceSavedGBs=$($savedGBs)GBs|trashVar2="
