@@ -28,7 +28,7 @@ Try {
         ## For some reason when downloading from google drive once and awhile it just won't finish the download
         ## so a byte check really is necessary to make sure CCleaner downloads succesfully. Long play is to move
         ## this to an FTP server, just haven't had a chance.
-        If ((Get-Item $ccleanerExe -ErrorAction 0).Length -ne '13594584') {
+        If ((Get-Item $ccleanerExe -ErrorAction SilentlyContinue).Length -ne '13594584') {
             Write-Warning 'Ccleaner does exist, but the file size does not match the server. Re-downloading...'
             (New-Object System.Net.WebClient).DownloadFile($ccleanerUrl, $ccleanerExe)
         } Else {
@@ -79,7 +79,7 @@ If (!$excludeCTemp) {
      $folders = "$env:TEMP","$env:windir\Temp"
 }
 ForEach ($folder in $folders) {
-    Get-ChildItem $folder -Recurse -ErrorAction 0 | ForEach-Object {
+    Get-ChildItem $folder -Recurse -ErrorAction SilentlyContinue | ForEach-Object {
         $tempCount++
         $item = $_.FullName
         Try {
@@ -92,7 +92,7 @@ ForEach ($folder in $folders) {
             $tempCount--
             #Write-Warning "Failed to delete $item"
         }
-    } | Out-Null
+    }
 }
 
 If ($tempCount -eq 0) {
@@ -110,10 +110,10 @@ If ((Test-Path "$env:windir\System32\cleanmgr.exe" -PathType Leaf)) {
     $cleanItems = 'Active Setup Temp Folders','BranchCache','Content Indexer Cleaner','D3D Shader Cache','Delivery Optimization Files','Device Driver Packages','Diagnostic Data Viewer database files','Downloaded Program Files','Internet Cache Files','Language Pack','Offline Pages Files','Old ChkDsk Files','Previous Installations','Recycle Bin','RetailDemo Offline Content','Service Pack Cleanup','Setup Log Files','System error memory dump files','System error minidump files','System error minidump files','Temporary Setup Files','Thumbnail Cache','Update Cleanup','User file versions','Windows Defender','Windows Error Reporting Files','Windows ESD installation files','Windows Upgrade Log Files'
 
     ForEach ($item in $cleanItems) {
-        $curProperty = Get-ItemProperty -Path "$diskCleanRegPath\$item" -Name StateFlags0778 -ErrorAction 0
+        $curProperty = Get-ItemProperty -Path "$diskCleanRegPath\$item" -Name StateFlags0778 -ErrorAction SilentlyContinue
         If (!$curProperty -or $curProperty.StateFlags0778 -ne 2) {
             Write-Output "Setting $item to enabled in Disk Cleanup"
-            New-ItemProperty -Path "$diskCleanRegPath\$item" -Name StateFlags0778 -Value 2 -PropertyType DWORD -ErrorAction 0 | Out-Null
+            New-ItemProperty -Path "$diskCleanRegPath\$item" -Name StateFlags0778 -Value 2 -PropertyType DWORD -ErrorAction SilentlyContinue | Out-Null
         }
     }
     &cmd.exe /c echo y| cleanmgr /sagerun:0778
@@ -121,7 +121,7 @@ If ((Test-Path "$env:windir\System32\cleanmgr.exe" -PathType Leaf)) {
     ## pretty extensive just to check if cleanmgr is running, but the alternative is letting this get hung up
     ## and the script in Automate just gets stuck untilt he couple hour timeout hits. 
     $proc = 'cleanmgr'
-    If (Get-Process $proc -ErrorAction 0) {
+    If (Get-Process $proc -ErrorAction SilentlyContinue) {
         ## Define the number of minutes the countdown timer should allow it to gracefully finish before giving up and killing cleanmgr.
         $CountDownTimer = 10
         Write-Host " "
@@ -137,7 +137,7 @@ If ((Test-Path "$env:windir\System32\cleanmgr.exe" -PathType Leaf)) {
             -SecondsRemaining $TimeSpan.TotalSeconds
         Start-Sleep -Seconds 1
         ## Recheck to see if the process is still running. It will return a $Null/$False value if it isn't for evaluation at the beginning of the loop.
-        $diskCleanupRunning = Get-Process $proc -ErrorAction 0
+        $diskCleanupRunning = Get-Process $proc -ErrorAction SilentlyContinue
         ## Recalculate the new timespan at the end of the loop for evaluation at the beginning of the loop.
         $TimeSpan = New-TimeSpan (Get-Date) $EndTime
     }
