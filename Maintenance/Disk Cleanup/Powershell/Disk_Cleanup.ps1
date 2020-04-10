@@ -82,7 +82,7 @@ If (!$excludeCTemp) {
 $ErrorActionBefore = $ErrorActionPreference
 $ErrorActionPreference = 'SilentlyContinue'
 ForEach ($folder in $folders) {
-    Get-ChildItem $folder -Recurse -ErrorAction SilentlyContinue | ForEach-Object {
+    Get-ChildItem $folder -Recurse | ForEach-Object {
         $tempCount++
         $item = $_.FullName
         Try {
@@ -219,4 +219,4 @@ If($saved -le 0) {
 }
 
 ## Formats the output so we can split vars in Automate
-Write-Output "trashVar='None'|before=$before|after=$after|spaceSaved=$saved|spaceSavedGBs=$($savedGBs)GBs|trashVar2="
+Write-Output "trashVar='None'|before=$before|after=$after|spaceSaved=$saved|spaceSavedGBs=$($savedGBs)GBs"
