@@ -78,6 +78,24 @@ If (!$excludeCTemp) {
 } Else {
      $folders = "$env:TEMP","$env:windir\Temp"
 }
+
+ForEach ($folder in $folders) {
+    Try {
+        Get-ChildItem $folder -Recurse -ErrorAction Stop | ForEach-Object {
+            $tempCount++
+            $item = $_.FullName
+            ## We've had issues with IIS if you mess with the inetpub temp so we are excluding that in this IF statement
+            If ($item -notlike '*inetpub*') {
+                Remove-Item $item -Recurse -Force -ErrorAction Stop
+                #Write-Output "Deleted $item"
+            }
+        }
+    } Catch {
+        $tempCount--
+        #Write-Warning "Failed to delete $item"
+    }
+}
+<#
 ForEach ($folder in $folders) {
     Get-ChildItem $folder -Recurse -ErrorAction SilentlyContinue | ForEach-Object {
         $tempCount++
@@ -94,6 +112,7 @@ ForEach ($folder in $folders) {
         }
     }
 }
+#>
 
 If ($tempCount -eq 0) {
     $folders = $folders.Split(' ')
