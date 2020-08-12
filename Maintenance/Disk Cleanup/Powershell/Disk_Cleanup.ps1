@@ -58,7 +58,7 @@ Try {
 ## Deletes old windows update files and old versions of Windows
 ## Using CMD RD instead of Remove-Item since in the past have had several issues with Remove-Item hanging on
 ## permission issues instead of skipping and moving on. This is even with trying -Confirm:$False -Force etc.
-$folders = "$sysDrive\Windows10Upgrade","$sysDrive\Windows\SoftwareDistribution\Download","$sysDrive\Windows.old"
+$folders = "$sysDrive\Windows10Upgrade","$sysDrive\Windows\SoftwareDistribution\Download"#,"$sysDrive\Windows.old"
 ForEach($folder in $folders){
     If((Test-Path $folder)){
         &cmd.exe /c echo y| takeown /F $folder\* /R /A /D Y 2>&1 | Out-Null
