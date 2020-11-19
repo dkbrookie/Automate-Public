@@ -209,7 +209,7 @@ $age = 14
 If ((Test-Path -Path $ltsvcPath)) {
     ## Only delete items $age old or older, and do not delete files directly in the Ninite or PSExec folders.
     ## Ninite holds logs, and PSExec we use for various tasks so we want to leave both of those.
-    Get-ChildItem -Path $ltsvcPath -Include *.* -File -Recurse | Where-Object { $_.Directory.Name -ne 'PSExec' -and $_.Directory.Name -ne 'Ninite' -and $_.LastWriteTime -le (Get-Date).AddDays(-$age) } | Remove-Item -Force -Confirm:$False
+    Get-ChildItem -Path $ltsvcPath -Include *.* -File -Recurse | Where-Object { $_.Directory.Name -ne 'PSExec' -and $_.Directory.Name -ne 'Icons' -and $_.Directory.Name -ne 'Ninite' -and $_.LastWriteTime -le (Get-Date).AddDays(-$age) } | Remove-Item -Force -Confirm:$False
 }
 
 ## Gets the available space of all drives after cleaning
