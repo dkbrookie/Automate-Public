@@ -81,6 +81,9 @@ If (!$excludeCTemp) {
 
 $ErrorActionBefore = $ErrorActionPreference
 $ErrorActionPreference = 'SilentlyContinue'
+<#
+## Old temp file manual cleanup, deleting entire folder and causing issues
+
 ForEach ($folder in $folders) {
     Get-ChildItem $folder -Recurse | ForEach-Object {
         $tempCount++
@@ -88,7 +91,8 @@ ForEach ($folder in $folders) {
         Try {
             ## We've had issues with IIS if you mess with the inetpub temp so we are excluding that in this IF statement
             If ($item -notlike '*inetpub*') {
-                Remove-Item $item -Recurse -Force -ErrorAction Stop
+                #Remove-Item $item -Recurse -Force -ErrorAction Stop
+                Get-ChildItem -Path $item -Exclude '*.txt' -Include '*' -File -Recurse | Where-Object { $_.Directory.Name -ne '*inetpub*' } | Remove-Item -Force -Confirm:$False
                 #Write-Output "Deleted $item"
             }
         } Catch {
@@ -97,7 +101,16 @@ ForEach ($folder in $folders) {
         }
     }
 }
+#>
+
+## NEW removal method, does not delete folders. Disabled for now, still testing in VMs.
+<#
+ForEach ($folder in $folders) {
+    Get-ChildItem -Path $folder -Include '*' -File -Recurse | Where-Object { $_.Directory.Name -notlike '*inetpub*' -and $_.Directory.Name -notlike '*WindowsUpdateLog*' } | Remove-Item -Force -Confirm:$False
+}
+#>
 $ErrorActionPreference = $ErrorActionBefore
+
 
 If ($tempCount -eq 0) {
     $folders = $folders.Split(' ')
@@ -205,11 +218,12 @@ public static extern uint SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, uin
 
 ## Delete old items in the LTSvc folder
 $ltsvcPath = "$env:windir\LTSvc\packages"
-$age = 14
 If ((Test-Path -Path $ltsvcPath)) {
     ## Only delete items $age old or older, and do not delete files directly in the Ninite or PSExec folders.
     ## Ninite holds logs, and PSExec we use for various tasks so we want to leave both of those.
-    Get-ChildItem -Path $ltsvcPath -Include *.* -File -Recurse | Where-Object { $_.Directory.Name -ne 'PSExec' -and $_.Directory.Name -ne 'SWP' -and $_.Directory.Name -ne 'Icons' -and $_.Directory.Name -ne 'Ninite' -and $_.LastWriteTime -le (Get-Date).AddDays(-$age) } | Remove-Item -Force -Confirm:$False
+    Get-ChildItem -Path $ltsvcPath -Exclude '*.txt' -Include '*' -File -Recurse | Where-Object { $_.Directory.Name -ne 'PSExec' -and $_.Directory.Name -ne 'SWP' -and $_.Directory.Name -ne 'TCRS' -and $_.Directory.Name -ne 'Icons' } | Remove-Item -Force -Confirm:$False
+    ## $age = 14
+    ## Use this to delete by date if needed -and $_.LastWriteTime -le (Get-Date).AddDays(-$age)
 }
 
 ## Gets the available space of all drives after cleaning
