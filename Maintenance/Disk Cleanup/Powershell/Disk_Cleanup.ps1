@@ -76,8 +76,9 @@ $tempCount = 0
 If (!$excludeCTemp) {
     $folders = "$env:TEMP","$env:SystemDrive\Temp","$env:windir\Temp"
 } Else {
-     $folders = "$env:TEMP","$env:windir\Temp"
+    $folders = "$env:TEMP","$env:windir\Temp"
 }
+
 
 $ErrorActionBefore = $ErrorActionPreference
 $ErrorActionPreference = 'SilentlyContinue'
@@ -103,12 +104,17 @@ ForEach ($folder in $folders) {
 }
 #>
 
-## NEW removal method, does not delete folders. Disabled for now, still testing in VMs.
-<#
-ForEach ($folder in $folders) {
-    Get-ChildItem -Path $folder -Include '*' -File -Recurse | Where-Object { $_.Directory.Name -notlike '*inetpub*' -and $_.Directory.Name -notlike '*WindowsUpdateLog*' } | Remove-Item -Force -Confirm:$False
+## NEW removal method, does not delete folders.
+## If this is a server we're going to skip this section. After quite awhile in prod, we've found it's common for LoB
+## applications to store vital data in C:\Windows\Temp, and C:\Temp...weird, but definitely exists and clearing them
+## breaks applications. This is also excluding inetpub (IIS), WindowsUpdateLog folder, and .log files.
+$os = (Get-WmiObject win32_operatingsystem).Caption
+If ($os -notlike '*Server*') {
+    ForEach ($folder in $folders) {
+        "Removing files from $folder..."
+        Get-ChildItem -Path $folder -Exclude '*.log' -Include '*' -File -Recurse | Where-Object { $_.Directory.Name -notlike '*inetpub*' -and $_.Directory.Name -notlike '*WindowsUpdateLog*' } | Remove-Item -Force -Confirm:$False
+    }
 }
-#>
 $ErrorActionPreference = $ErrorActionBefore
 
 
