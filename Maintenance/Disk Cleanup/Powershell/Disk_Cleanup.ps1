@@ -142,7 +142,7 @@ If ((Test-Path "$env:windir\System32\cleanmgr.exe" -PathType Leaf)) {
     &cmd.exe /c echo y| cleanmgr /sagerun:0778
     ## Check to see if cleanmgr is still running since this often gets hung up and stops the script. This is
     ## pretty extensive just to check if cleanmgr is running, but the alternative is letting this get hung up
-    ## and the script in Automate just gets stuck untilt he couple hour timeout hits. 
+    ## and the script in Automate just gets stuck untilt he couple hour timeout hits.
     $proc = 'cleanmgr'
     If (Get-Process $proc -ErrorAction SilentlyContinue) {
         ## Define the number of minutes the countdown timer should allow it to gracefully finish before giving up and killing cleanmgr.
@@ -164,7 +164,7 @@ If ((Test-Path "$env:windir\System32\cleanmgr.exe" -PathType Leaf)) {
         ## Recalculate the new timespan at the end of the loop for evaluation at the beginning of the loop.
         $TimeSpan = New-TimeSpan (Get-Date) $EndTime
     }
-    ## Close out the progress bar cleanly if it was still running. 
+    ## Close out the progress bar cleanly if it was still running.
     Write-Progress -Activity "Waiting for $proc to complete." -Completed -Status 'Complete'
     ## If cleanmgr is still running after the end count time timer, kill cleanmgr. Otherwise note the time it took cleanmgr to complete.
     If ($diskCleanupRunning) {
@@ -183,9 +183,9 @@ If ((Test-Path "$env:windir\System32\cleanmgr.exe" -PathType Leaf)) {
 <#
 WinSxs Cleanup
 
-The /Cleanup-Image parameter of Dism.exe provides advanced users more options to further 
-reduce the size of the WinSxS folder. To reduce the amount of space used by a Service 
-Pack, use the /SPSuperseded parameter of Dism.exe on a running version of Windows to 
+The /Cleanup-Image parameter of Dism.exe provides advanced users more options to further
+reduce the size of the WinSxS folder. To reduce the amount of space used by a Service
+Pack, use the /SPSuperseded parameter of Dism.exe on a running version of Windows to
 remove any backup components needed for uninstallation of the service pack.
 #>
 $dismSP = &cmd.exe /c "dism.exe /Online /Cleanup-Image /SPSuperseded"
@@ -198,7 +198,7 @@ If ($dismSP -like '*Service Pack Cleanup cannot proceed: No Service Pack backup 
 <#
 Service Pack Cleanup
 
-Using the /ResetBase switch with the /StartComponentCleanup parameter of DISM.exe on a 
+Using the /ResetBase switch with the /StartComponentCleanup parameter of DISM.exe on a
 removes all superseded versions of every component in the component store
 #>
 $dismWinSxs = &cmd.exe /c "dism.exe /Online /Cleanup-Image /StartComponentCleanup /ResetBase"
@@ -224,12 +224,18 @@ public static extern uint SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, uin
 
 ## Delete old items in the LTSvc folder
 $ltsvcPath = "$env:windir\LTSvc\packages"
+$age = 30
 If ((Test-Path -Path $ltsvcPath)) {
     ## Only delete items $age old or older, and do not delete files directly in the Ninite or PSExec folders.
     ## Ninite holds logs, and PSExec we use for various tasks so we want to leave both of those.
-    Get-ChildItem -Path $ltsvcPath -Exclude '*.txt' -Include '*' -File -Recurse | Where-Object { $_.Directory.Name -ne 'PSExec' -and $_.Directory.Name -ne 'SWP' -and $_.Directory.Name -ne 'TCRS' -and $_.Directory.Name -ne 'Icons' } | Remove-Item -Force -Confirm:$False
-    ## $age = 14
-    ## Use this to delete by date if needed -and $_.LastWriteTime -le (Get-Date).AddDays(-$age)
+    Get-ChildItem -Path $ltsvcPath -Exclude '*.txt' -Include '*' -File -Recurse |
+    Where-Object { $_.Directory.Name -ne 'PSExec' } |
+    Where-Object { $_.Directory.Name -ne 'SWP' } |
+    Where-Object { $_.Directory.Name -ne 'TCRS' } |
+    Where-Object { $_.Directory.Name -ne 'Icons' } |
+    # Only delete items older than $age days
+    Where-Object { $_.LastWriteTime -le (Get-Date).AddDays(-$age) } |
+    Remove-Item -Force -Confirm:$False
 }
 
 ## Gets the available space of all drives after cleaning
