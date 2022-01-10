@@ -6,8 +6,7 @@ function Invoke-Output {
 
 # Set vars
 $output = @()
-$pathsToRemove = @()
-$pathsToRemove = 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate','HKLM:\Software\Policies\Microsoft\Windows\DeliveryOptimization'
+$pathsToRemove = $('HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate','HKLM:\Software\Policies\Microsoft\Windows\DeliveryOptimization')
 $hideWindowsUpdate = 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer'
 
 
@@ -50,7 +49,7 @@ if ((Get-ItemProperty -Path $hideWindowsUpdate -Name 'SettingsPageVisibility' -E
 $output += Start-Service -Name wuauserv
 
 
-$output += "Full error output for troubleshooting-- note paths missing is an OK error since that menas there was nothing to remove"
+$output += "Full error output for troubleshooting-- note paths missing or a value missing is an OK error since that means there was nothing to remove"
 $output += $Error
 
 
