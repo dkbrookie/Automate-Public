@@ -82,29 +82,7 @@ If (!$excludeCTemp) {
 
 $ErrorActionBefore = $ErrorActionPreference
 $ErrorActionPreference = 'SilentlyContinue'
-<#
-## Old temp file manual cleanup, deleting entire folder and causing issues
 
-ForEach ($folder in $folders) {
-    Get-ChildItem $folder -Recurse | ForEach-Object {
-        $tempCount++
-        $item = $_.FullName
-        Try {
-            ## We've had issues with IIS if you mess with the inetpub temp so we are excluding that in this IF statement
-            If ($item -notlike '*inetpub*') {
-                #Remove-Item $item -Recurse -Force -ErrorAction Stop
-                Get-ChildItem -Path $item -Exclude '*.txt' -Include '*' -File -Recurse | Where-Object { $_.Directory.Name -ne '*inetpub*' } | Remove-Item -Force -Confirm:$False
-                #Write-Output "Deleted $item"
-            }
-        } Catch {
-            $tempCount--
-            #Write-Warning "Failed to delete $item"
-        }
-    }
-}
-#>
-
-## NEW removal method, does not delete folders.
 ## If this is a server we're going to skip this section. After quite awhile in prod, we've found it's common for LoB
 ## applications to store vital data in C:\Windows\Temp, and C:\Temp...weird, but definitely exists and clearing them
 ## breaks applications. This is also excluding inetpub (IIS), WindowsUpdateLog folder, and .log files.
