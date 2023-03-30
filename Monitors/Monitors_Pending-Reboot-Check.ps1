@@ -23,8 +23,17 @@ Try {
   }
 } Catch {
   $result = @{
+    Entries = @()
+    HasPendingReboots = $false
     Output = "Encountered an error while attempting to read pending reboot status. Error: $($_.Exception.Message)"
   }
+}
+
+# Transform boolean to 0/1 string for Automate EDF
+If ($result.HasPendingReboots) {
+  $result.HasPendingReboots = '1'
+} Else {
+  $result.HasPendingReboots = '0'
 }
 
 Invoke-Output $result
