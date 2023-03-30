@@ -18,6 +18,9 @@ Try {
 
 Try {
   $result = Read-PendingRebootStatus
+  If (!$result.HasPendingReboots) {
+    $result.Output = "No pending reboots detected."
+  }
 } Catch {
   $result = @{
     Output = "Encountered an error while attempting to read pending reboot status. Error: $($_.Exception.Message)"
